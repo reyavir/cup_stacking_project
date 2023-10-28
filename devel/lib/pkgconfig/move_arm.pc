@@ -1,0 +1,8 @@
+prefix=/home/cc/ee106a/fa23/class/ee106a-adw/ros_workspace/ee106a_finalproject/devel
+
+Name: move_arm
+Description: Description of move_arm
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

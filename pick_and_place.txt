@@ -1,0 +1,7 @@
+Starting position of box:
+- Translation: [0.775, -0.009, -0.103]
+- Rotation: in Quaternion [0.034, 0.999, -0.008, -0.004]
+
+Ending: 
+- Translation: [0.763, 0.264, -0.078]
+- Rotation: in Quaternion [-0.046, 0.999, -0.022, -0.003]

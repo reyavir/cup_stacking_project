@@ -1,0 +1,8 @@
+prefix=/home/cc/ee106a/fa23/class/ee106a-adw/ros_workspace/ee106a_finalproject/install
+
+Name: planning
+Description: Description of planning
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 
