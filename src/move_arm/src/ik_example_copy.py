@@ -30,39 +30,45 @@ def main():
         request.ik_request.pose_stamped.header.frame_id = "base"
 
         # Example with 1 cup
-        # start_trans = [0.793, 0.263, -0.103]
+        # start_trans = [0.793, 0.263, neg_z]
         # start_quat = [0.050, 0.998, 0.041, -0.014]
-        # inter_trans = [0.793, 0.263, 0.103]
+        # inter_trans = [0.793, 0.263, pos_z]
         # inter_quat = [0.050, 0.998, 0.041, -0.014]
-        # end_trans = [0.793, 0.0, -0.103]
+        # end_trans = [0.793, 0.0, neg_z]
         # end_quat = [0.050, 0.998, 0.041, -0.014]
 
         # Example with two cups
         cup_diameter = 0.378 - 0.285
+        neg_z = -0.099
+        pos_z = 0.099
         
-        start_trans1 = [0.793, 0.285, -0.103]
-        start_quat1 = [0.050, 0.998, 0.041, -0.014]
-        start_trans2 = [0.793, 0.378, -0.103]
-        start_quat2 = [0.050, 0.998, 0.041, -0.014]
+        start_trans1 = [0.793, 0.285, neg_z]
+        quat = [0.0, 1.0, 0.0, 0.0]
+        # old_quat = [0.050, 0.998, 0.041, -0.014]
+        start_trans2 = [0.793, 0.378, neg_z]
 
         start_trans = [start_trans1, start_trans2]
-        start_quat = [start_quat1, start_quat2]
+        start_quat = [quat, quat]
 
-        inter_trans1 = [0.793, 0.285, 0.103]
-        inter_quat1 = [0.050, 0.998, 0.041, -0.014]
-        inter_trans2 = [0.793, 0.378, 0.103]
-        inter_quat2 = [0.050, 0.998, 0.041, -0.014]
+        start_inter_trans1 = [0.793, 0.285, pos_z]
+        start_inter_trans2 = [0.793, 0.378, pos_z]
 
-        inter_trans = [inter_trans1, inter_trans2]
-        inter_quat = [inter_quat1, inter_quat2]
+        start_inter_trans = [start_inter_trans1, start_inter_trans2]
+        start_inter_quat = [quat, quat]
 
-        end_trans1 = [0.793, 0 + cup_diameter, -0.103]
-        end_quat1 = [0.050, 0.998, 0.041, -0.014]
-        end_trans2 = [0.793, 0, -0.103]
-        end_quat2 = [0.050, 0.998, 0.041, -0.014]
+        end_inter_trans1 = [0.793, 0 - cup_diameter, pos_z]
+        end_inter_trans2 = [0.793, 0, pos_z]
+
+        end_inter_trans = [end_inter_trans1, end_inter_trans2]
+        end_inter_quat = [quat, quat]
+
+        end_trans1 = [0.793, 0 - cup_diameter, neg_z]
+        end_trans2 = [0.793, 0, neg_z]
 
         end_trans = [end_trans1, end_trans2]
-        end_quat = [end_quat1, end_quat2]
+        end_quat = [quat, quat]
+
+        
 
         # Set up the right gripper
         right_gripper = robot_gripper.Gripper('right_gripper')
@@ -72,13 +78,15 @@ def main():
         right_gripper.calibrate()
         rospy.sleep(2.0)
 
-        for i in range(2):
-            # Open the right gripper
-            print('Opening...')
-            right_gripper.open()
-            rospy.sleep(1.0)
-            print('Done!')
+        # Open the right gripper
+        print('Opening...')
+        right_gripper.open()
+        rospy.sleep(1.0)
+        print('Done!')
 
+        og_num_try = 10
+
+        for i in range(2):
             # Construct the request
             start_request = GetPositionIKRequest()
             start_request.ik_request.group_name = "right_arm"
@@ -93,19 +101,33 @@ def main():
             start_request.ik_request.pose_stamped.pose.orientation.z = start_quat[i][2]
             start_request.ik_request.pose_stamped.pose.orientation.w = start_quat[i][3]
 
-            # Construct the inter request to move box to goal
-            inter_request = GetPositionIKRequest()
-            inter_request.ik_request.group_name = "right_arm"
-            inter_request.ik_request.ik_link_name = link
-            inter_request.ik_request.pose_stamped.header.frame_id = "base"
+            # Construct the start inter request to move box to goal
+            start_inter_request = GetPositionIKRequest()
+            start_inter_request.ik_request.group_name = "right_arm"
+            start_inter_request.ik_request.ik_link_name = link
+            start_inter_request.ik_request.pose_stamped.header.frame_id = "base"
 
-            inter_request.ik_request.pose_stamped.pose.position.x = inter_trans[i][0]
-            inter_request.ik_request.pose_stamped.pose.position.y = inter_trans[i][1]
-            inter_request.ik_request.pose_stamped.pose.position.z = inter_trans[i][2]    
-            inter_request.ik_request.pose_stamped.pose.orientation.x = inter_quat[i][0]
-            inter_request.ik_request.pose_stamped.pose.orientation.y = inter_quat[i][1]
-            inter_request.ik_request.pose_stamped.pose.orientation.z = inter_quat[i][2]
-            inter_request.ik_request.pose_stamped.pose.orientation.w = inter_quat[i][3]
+            start_inter_request.ik_request.pose_stamped.pose.position.x = start_inter_trans[i][0]
+            start_inter_request.ik_request.pose_stamped.pose.position.y = start_inter_trans[i][1]
+            start_inter_request.ik_request.pose_stamped.pose.position.z = start_inter_trans[i][2]    
+            start_inter_request.ik_request.pose_stamped.pose.orientation.x = start_inter_quat[i][0]
+            start_inter_request.ik_request.pose_stamped.pose.orientation.y = start_inter_quat[i][1]
+            start_inter_request.ik_request.pose_stamped.pose.orientation.z = start_inter_quat[i][2]
+            start_inter_request.ik_request.pose_stamped.pose.orientation.w = start_inter_quat[i][3]
+
+            # Construct the end inter request to move box to goal
+            end_inter_request = GetPositionIKRequest()
+            end_inter_request.ik_request.group_name = "right_arm"
+            end_inter_request.ik_request.ik_link_name = link
+            end_inter_request.ik_request.pose_stamped.header.frame_id = "base"
+
+            end_inter_request.ik_request.pose_stamped.pose.position.x = end_inter_trans[i][0]
+            end_inter_request.ik_request.pose_stamped.pose.position.y = end_inter_trans[i][1]
+            end_inter_request.ik_request.pose_stamped.pose.position.z = end_inter_trans[i][2]    
+            end_inter_request.ik_request.pose_stamped.pose.orientation.x = end_inter_quat[i][0]
+            end_inter_request.ik_request.pose_stamped.pose.orientation.y = end_inter_quat[i][1]
+            end_inter_request.ik_request.pose_stamped.pose.orientation.z = end_inter_quat[i][2]
+            end_inter_request.ik_request.pose_stamped.pose.orientation.w = end_inter_quat[i][3]
 
             # Construct the end request to move box to goal
             end_request = GetPositionIKRequest()
@@ -124,122 +146,146 @@ def main():
             print("Trying to move cup number ", str(i + 1))
 
             try:
-                tries = 3
+                # INTER POSITION
+                count = 0
+                tries = og_num_try
+                while tries > count:
+                    response = compute_ik(start_inter_request)
+                    print("Pre-Start Position")
+                    inter_group = MoveGroupCommander("right_arm")
+                    inter_group.set_pose_target(start_inter_request.ik_request.pose_stamped)
+                    
+                    # Print the response HERE
+                    print(response)
+                    end_plan = inter_group.plan()
+                    user_input = input("Enter 'y' if the trajectory looks safe on RVIZ: ")
+
+                    # Execute IK if safe
+                    if user_input == 'y':
+                        inter_group.execute(end_plan[1])
+                        break
+                    
+                    count += 1
+
                 # STARTING POSITION
-                # Send the request to the service
-                response = compute_ik(start_request)
-                print("Starting Position")
-                print(response)
-                start_group = MoveGroupCommander("right_arm")
-                
-                # Setting position and orientation target
-                start_group.set_pose_target(start_request.ik_request.pose_stamped)
+                count = 0
+                tries = og_num_try
+                while tries > count:
+                    response = compute_ik(start_request)
+                    print("Starting Position")
+                    print(response)
+                    start_group = MoveGroupCommander("right_arm")
+                    
+                    # Setting position and orientation target
+                    start_group.set_pose_target(start_request.ik_request.pose_stamped)
 
-                # Plan IK
-                start_plan = start_group.plan()
-                user_input = input("Enter 'y' if the trajectory looks safe on RVIZ: ")
+                    # Plan IK
+                    start_plan = start_group.plan()
+                    user_input = input("Enter 'y' if the trajectory looks safe on RVIZ: ")
 
-                # Execute IK if safe
-                if user_input == 'y':
-                    start_group.execute(start_plan[1])
-                elif user_input != 'stop':
-                    count = 0
-                    while tries > count:
-                        response = compute_ik(start_request)
-                        print("Starting Position")
-                        print(response)
-                        start_group = MoveGroupCommander("right_arm")
-                        
-                        # Setting position and orientation target
-                        start_group.set_pose_target(start_request.ik_request.pose_stamped)
-
-                        # Plan IK
-                        start_plan = start_group.plan()
-                        user_input = input("Enter 'y' if the trajectory looks safe on RVIZ: ")
-
-                        # Execute IK if safe
-                        if user_input == 'y':
-                            start_group.execute(start_plan[1])
-                            break
-                        
-                        count += 1
+                    # Execute IK if safe
+                    if user_input == 'y':
+                        start_group.execute(start_plan[1])
+                        break
+                    
+                    count += 1
 
                 # Close the right gripper
                 print('Closing...')
                 right_gripper.close()
                 rospy.sleep(1.0)
 
-                # INTER POSITION
-                # Send the request to the service
-                response = compute_ik(inter_request)
-                print("Intermediate Position")
-                inter_group = MoveGroupCommander("right_arm")
-                inter_group.set_pose_target(inter_request.ik_request.pose_stamped)
-                
-                # Print the response HERE
-                print(response)
-                end_plan = inter_group.plan()
-                user_input = input("Enter 'y' if the trajectory looks safe on RVIZ: ")
+                # START INTER POSITION
+                count = 0
+                tries = og_num_try
+                while tries > count:
+                    response = compute_ik(start_inter_request)
+                    print("Starting Intermediate Position")
+                    inter_group = MoveGroupCommander("right_arm")
+                    inter_group.set_pose_target(start_inter_request.ik_request.pose_stamped)
+                    
+                    # Print the response HERE
+                    print(response)
+                    end_plan = inter_group.plan()
+                    user_input = input("Enter 'y' if the trajectory looks safe on RVIZ: ")
 
-                # Execute IK if safe
-                if user_input == 'y':
-                    inter_group.execute(end_plan[1])
-                elif user_input != 'stop':
-                    count = 0
-                    while tries > count:
-                        response = compute_ik(inter_request)
-                        print("Intermediate Position")
-                        inter_group = MoveGroupCommander("right_arm")
-                        inter_group.set_pose_target(inter_request.ik_request.pose_stamped)
-                        
-                        # Print the response HERE
-                        print(response)
-                        end_plan = inter_group.plan()
-                        user_input = input("Enter 'y' if the trajectory looks safe on RVIZ: ")
+                    # Execute IK if safe
+                    if user_input == 'y':
+                        inter_group.execute(end_plan[1])
+                        break
+                    
+                    count += 1
 
-                        # Execute IK if safe
-                        if user_input == 'y':
-                            inter_group.execute(end_plan[1])
-                            break
-                        
-                        count += 1
+                # END INTER POSITION
+                count = 0
+                tries = og_num_try
+                while tries > count:
+                    response = compute_ik(end_inter_request)
+                    print("Ending Intermediate Position")
+                    inter_group = MoveGroupCommander("right_arm")
+                    inter_group.set_pose_target(end_inter_request.ik_request.pose_stamped)
+                    
+                    # Print the response HERE
+                    print(response)
+                    end_plan = inter_group.plan()
+                    user_input = input("Enter 'y' if the trajectory looks safe on RVIZ: ")
+
+                    # Execute IK if safe
+                    if user_input == 'y':
+                        inter_group.execute(end_plan[1])
+                        break
+                    
+                    count += 1
 
                 # END POSITION
-                # Send the request to the service
-                response = compute_ik(end_request)
-                print("Ending Position")
-                end_group = MoveGroupCommander("right_arm")
-                end_group.set_pose_target(end_request.ik_request.pose_stamped)
+                count = 0
+                tries = og_num_try
+                while tries > count:
+                    response = compute_ik(end_request)
+                    print("Ending Position")
+                    end_group = MoveGroupCommander("right_arm")
+                    end_group.set_pose_target(end_request.ik_request.pose_stamped)
 
-                
-                # Print the response HERE
-                print(response)
-                end_plan = end_group.plan()
-                user_input = input("Enter 'y' if the trajectory looks safe on RVIZ: ")
+                    
+                    # Print the response HERE
+                    print(response)
+                    end_plan = end_group.plan()
+                    user_input = input("Enter 'y' if the trajectory looks safe on RVIZ: ")
 
-                # Execute IK if safe
-                if user_input == 'y':
-                    end_group.execute(end_plan[1])
-                elif user_input != 'stop':
-                    count = 0
-                    while tries > count:
-                        response = compute_ik(end_request)
-                        print("Ending Position")
-                        end_group = MoveGroupCommander("right_arm")
-                        end_group.set_pose_target(end_request.ik_request.pose_stamped)
+                    # Execute IK if safe
+                    if user_input == 'y':
+                        end_group.execute(end_plan[1])
+                        break
+                    
+                    count += 1
 
-                        
-                        # Print the response HERE
-                        print(response)
-                        end_plan = end_group.plan()
-                        user_input = input("Enter 'y' if the trajectory looks safe on RVIZ: ")
+                # Open the right gripper
+                print('Opening...')
+                right_gripper.open()
+                rospy.sleep(1.0)
+                print('Done!')
 
-                        # Execute IK if safe
-                        if user_input == 'y':
-                            end_group.execute(end_plan[1])
-                            break
-                        
-                        count += 1
+                # END INTER POSITION
+                count = 0
+                tries = og_num_try
+                while tries > count:
+                    response = compute_ik(end_inter_request)
+                    print("Ending Intermediate Position")
+                    inter_group = MoveGroupCommander("right_arm")
+                    inter_group.set_pose_target(end_inter_request.ik_request.pose_stamped)
+                    
+                    # Print the response HERE
+                    print(response)
+                    end_plan = inter_group.plan()
+                    user_input = input("Enter 'y' if the trajectory looks safe on RVIZ: ")
+
+                    # Execute IK if safe
+                    if user_input == 'y':
+                        inter_group.execute(end_plan[1])
+                        break
+                    
+                    count += 1
+
             except rospy.ServiceException as e:
                 print("Service call failed: %s"%e)
 
