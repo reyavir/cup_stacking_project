@@ -8,6 +8,13 @@ from numpy import linalg
 import sys
 from intera_interface import gripper as robot_gripper
 
+def move_to_cup(trans, quat):
+    # Move to the start inter position on top of cup --> move to start position --> move back up to start intermediate
+    return 
+
+def move_with_cup(trans, quat):
+    # Move with the end inter position on top of cup --> move to end position --> move back up to end intermediate
+    return
 
 def main():
     # Wait for the IK service to become available
@@ -29,44 +36,38 @@ def main():
         # request.ik_request.attempts = 20
         request.ik_request.pose_stamped.header.frame_id = "base"
 
-        # Example with 1 cup
-        # start_trans = [0.793, 0.263, neg_z]
-        # start_quat = [0.050, 0.998, 0.041, -0.014]
-        # inter_trans = [0.793, 0.263, pos_z]
-        # inter_quat = [0.050, 0.998, 0.041, -0.014]
-        # end_trans = [0.793, 0.0, neg_z]
-        # end_quat = [0.050, 0.998, 0.041, -0.014]
-
-        # Example with two cups
+        # Setting positions
+        start_y = 0.285
         cup_diameter = 0.378 - 0.285
+        cup_height = cup_diameter*1.25
         neg_z = -0.099
         pos_z = 0.099
-        
-        start_trans1 = [0.793, 0.285, neg_z]
+
         quat = [0.0, 1.0, 0.0, 0.0]
-        # old_quat = [0.050, 0.998, 0.041, -0.014]
-        start_trans2 = [0.793, 0.378, neg_z]
+        
+        start_trans1 = [0.793, start_y, neg_z]
+        start_trans2 = [0.793, start_y + cup_diameter, neg_z]
+        start_trans3 = [0.793, start_y + cup_diameter*2, neg_z]
 
-        start_trans = [start_trans1, start_trans2]
-        start_quat = [quat, quat]
+        start_trans = [start_trans1, start_trans2, start_trans3]
 
-        start_inter_trans1 = [0.793, 0.285, pos_z]
-        start_inter_trans2 = [0.793, 0.378, pos_z]
+        start_inter_trans1 = [0.793, start_y, pos_z]
+        start_inter_trans2 = [0.793, start_y + cup_diameter, pos_z]
+        start_inter_trans3 = [0.793, start_y + cup_diameter*2, pos_z]
 
-        start_inter_trans = [start_inter_trans1, start_inter_trans2]
-        start_inter_quat = [quat, quat]
+        start_inter_trans = [start_inter_trans1, start_inter_trans2, start_inter_trans3]
 
         end_inter_trans1 = [0.793, 0 - cup_diameter, pos_z]
         end_inter_trans2 = [0.793, 0, pos_z]
+        end_inter_trans3 = [0.793, 0 - cup_diameter/2, pos_z + cup_diameter*2]
 
-        end_inter_trans = [end_inter_trans1, end_inter_trans2]
-        end_inter_quat = [quat, quat]
+        end_inter_trans = [end_inter_trans1, end_inter_trans2, end_inter_trans3]
 
         end_trans1 = [0.793, 0 - cup_diameter, neg_z]
         end_trans2 = [0.793, 0, neg_z]
+        end_trans3 = [0.793, 0 - cup_diameter/2, neg_z + cup_height]
 
-        end_trans = [end_trans1, end_trans2]
-        end_quat = [quat, quat]
+        end_trans = [end_trans1, end_trans2, end_trans3]
 
         
 
@@ -85,8 +86,9 @@ def main():
         print('Done!')
 
         og_num_try = 10
+        num_cups = 3
 
-        for i in range(2):
+        for i in range(num_cups):
             # Construct the request
             start_request = GetPositionIKRequest()
             start_request.ik_request.group_name = "right_arm"
@@ -96,10 +98,10 @@ def main():
             start_request.ik_request.pose_stamped.pose.position.x = start_trans[i][0]
             start_request.ik_request.pose_stamped.pose.position.y = start_trans[i][1]
             start_request.ik_request.pose_stamped.pose.position.z = start_trans[i][2]    
-            start_request.ik_request.pose_stamped.pose.orientation.x = start_quat[i][0]
-            start_request.ik_request.pose_stamped.pose.orientation.y = start_quat[i][1]
-            start_request.ik_request.pose_stamped.pose.orientation.z = start_quat[i][2]
-            start_request.ik_request.pose_stamped.pose.orientation.w = start_quat[i][3]
+            start_request.ik_request.pose_stamped.pose.orientation.x = quat[0]
+            start_request.ik_request.pose_stamped.pose.orientation.y = quat[1]
+            start_request.ik_request.pose_stamped.pose.orientation.z = quat[2]
+            start_request.ik_request.pose_stamped.pose.orientation.w = quat[3]
 
             # Construct the start inter request to move box to goal
             start_inter_request = GetPositionIKRequest()
@@ -110,10 +112,10 @@ def main():
             start_inter_request.ik_request.pose_stamped.pose.position.x = start_inter_trans[i][0]
             start_inter_request.ik_request.pose_stamped.pose.position.y = start_inter_trans[i][1]
             start_inter_request.ik_request.pose_stamped.pose.position.z = start_inter_trans[i][2]    
-            start_inter_request.ik_request.pose_stamped.pose.orientation.x = start_inter_quat[i][0]
-            start_inter_request.ik_request.pose_stamped.pose.orientation.y = start_inter_quat[i][1]
-            start_inter_request.ik_request.pose_stamped.pose.orientation.z = start_inter_quat[i][2]
-            start_inter_request.ik_request.pose_stamped.pose.orientation.w = start_inter_quat[i][3]
+            start_inter_request.ik_request.pose_stamped.pose.orientation.x = quat[0]
+            start_inter_request.ik_request.pose_stamped.pose.orientation.y = quat[1]
+            start_inter_request.ik_request.pose_stamped.pose.orientation.z = quat[2]
+            start_inter_request.ik_request.pose_stamped.pose.orientation.w = quat[3]
 
             # Construct the end inter request to move box to goal
             end_inter_request = GetPositionIKRequest()
@@ -124,10 +126,10 @@ def main():
             end_inter_request.ik_request.pose_stamped.pose.position.x = end_inter_trans[i][0]
             end_inter_request.ik_request.pose_stamped.pose.position.y = end_inter_trans[i][1]
             end_inter_request.ik_request.pose_stamped.pose.position.z = end_inter_trans[i][2]    
-            end_inter_request.ik_request.pose_stamped.pose.orientation.x = end_inter_quat[i][0]
-            end_inter_request.ik_request.pose_stamped.pose.orientation.y = end_inter_quat[i][1]
-            end_inter_request.ik_request.pose_stamped.pose.orientation.z = end_inter_quat[i][2]
-            end_inter_request.ik_request.pose_stamped.pose.orientation.w = end_inter_quat[i][3]
+            end_inter_request.ik_request.pose_stamped.pose.orientation.x = quat[0]
+            end_inter_request.ik_request.pose_stamped.pose.orientation.y = quat[1]
+            end_inter_request.ik_request.pose_stamped.pose.orientation.z = quat[2]
+            end_inter_request.ik_request.pose_stamped.pose.orientation.w = quat[3]
 
             # Construct the end request to move box to goal
             end_request = GetPositionIKRequest()
@@ -138,10 +140,10 @@ def main():
             end_request.ik_request.pose_stamped.pose.position.x = end_trans[i][0]
             end_request.ik_request.pose_stamped.pose.position.y = end_trans[i][1]
             end_request.ik_request.pose_stamped.pose.position.z = end_trans[i][2]    
-            end_request.ik_request.pose_stamped.pose.orientation.x = end_quat[i][0]
-            end_request.ik_request.pose_stamped.pose.orientation.y = end_quat[i][1]
-            end_request.ik_request.pose_stamped.pose.orientation.z = end_quat[i][2]
-            end_request.ik_request.pose_stamped.pose.orientation.w = end_quat[i][3]
+            end_request.ik_request.pose_stamped.pose.orientation.x = quat[0]
+            end_request.ik_request.pose_stamped.pose.orientation.y = quat[1]
+            end_request.ik_request.pose_stamped.pose.orientation.z = quat[2]
+            end_request.ik_request.pose_stamped.pose.orientation.w = quat[3]
 
             print("Trying to move cup number ", str(i + 1))
 
