@@ -147,8 +147,7 @@ def main():
 
             print("Trying to move cup number ", str(i + 1))
 
-            try:
-                # INTER POSITION
+            def move_to_pre_start():
                 count = 0
                 tries = og_num_try
                 while tries > count:
@@ -169,7 +168,7 @@ def main():
                     
                     count += 1
 
-                # STARTING POSITION
+            def move_to_start():
                 count = 0
                 tries = og_num_try
                 while tries > count:
@@ -192,12 +191,7 @@ def main():
                     
                     count += 1
 
-                # Close the right gripper
-                print('Closing...')
-                right_gripper.close()
-                rospy.sleep(1.0)
-
-                # START INTER POSITION
+            def move_to_start_inter():
                 count = 0
                 tries = og_num_try
                 while tries > count:
@@ -218,7 +212,7 @@ def main():
                     
                     count += 1
 
-                # END INTER POSITION
+            def move_to_end_inter():
                 count = 0
                 tries = og_num_try
                 while tries > count:
@@ -239,7 +233,7 @@ def main():
                     
                     count += 1
 
-                # END POSITION
+            def move_to_end():
                 count = 0
                 tries = og_num_try
                 while tries > count:
@@ -261,6 +255,27 @@ def main():
                     
                     count += 1
 
+            try:
+                # INTER POSITION
+                move_to_pre_start()
+
+                # STARTING POSITION
+                move_to_start()
+
+                # Close the right gripper
+                print('Closing...')
+                right_gripper.close()
+                rospy.sleep(1.0)
+
+                # START INTER POSITION
+                move_to_start_inter()
+
+                # END INTER POSITION
+                move_to_end_inter()
+
+                # END POSITION
+                move_to_end()
+
                 # Open the right gripper
                 print('Opening...')
                 right_gripper.open()
@@ -268,25 +283,7 @@ def main():
                 print('Done!')
 
                 # END INTER POSITION
-                count = 0
-                tries = og_num_try
-                while tries > count:
-                    response = compute_ik(end_inter_request)
-                    print("Ending Intermediate Position")
-                    inter_group = MoveGroupCommander("right_arm")
-                    inter_group.set_pose_target(end_inter_request.ik_request.pose_stamped)
-                    
-                    # Print the response HERE
-                    print(response)
-                    end_plan = inter_group.plan()
-                    user_input = input("Enter 'y' if the trajectory looks safe on RVIZ: ")
-
-                    # Execute IK if safe
-                    if user_input == 'y':
-                        inter_group.execute(end_plan[1])
-                        break
-                    
-                    count += 1
+                move_to_end_inter()
 
             except rospy.ServiceException as e:
                 print("Service call failed: %s"%e)
