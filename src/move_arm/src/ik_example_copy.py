@@ -8,14 +8,6 @@ from numpy import linalg
 import sys
 from intera_interface import gripper as robot_gripper
 
-def move_to_cup(trans, quat):
-    # Move to the start inter position on top of cup --> move to start position --> move back up to start intermediate
-    return 
-
-def move_with_cup(trans, quat):
-    # Move with the end inter position on top of cup --> move to end position --> move back up to end intermediate
-    return
-
 def main():
     # Wait for the IK service to become available
     rospy.wait_for_service('compute_ik')
