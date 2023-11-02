@@ -8,6 +8,15 @@ from numpy import linalg
 import sys
 from intera_interface import gripper as robot_gripper
 
+def calculate_start_trans_positions(x, y, z):
+    return x, y, 
+
+
+def calculate_end_trans_positions(x, y, z):
+
+
+
+
 def main():
     # Wait for the IK service to become available
     rospy.wait_for_service('compute_ik')
