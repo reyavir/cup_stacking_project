@@ -22,7 +22,7 @@ def pyramid_shape(cups):
         layers = layers + 1
     return layers
 
-print(pyramid_shape(30))
+
 
 
 
