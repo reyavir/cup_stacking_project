@@ -21,8 +21,8 @@ def get_cup_locations(ar_tag_locations, im):
     cups = []
     # need 4 point correspondences --> feed in ar tag markers --> square coordinates in pixel dimensions
     output = [[0,0], [], [], []] # define based on relative ar tag locations - ORDER MATTERS HERE
-    maxWidth = None
-    maxHeight = None # define based on relative length of table region
+    maxWidth = int(pickup_width * 36)
+    maxHeight = int(pickup_length * 36) # define based on relative length of table region
     H = cv.getPerspectiveTransform(ar_tag_locations, output) 
     rectified_img = cv.warpPerspective(im, H, (maxWidth, maxHeight), flags=cv.INTER_LINEAR)
 
