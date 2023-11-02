@@ -9,8 +9,6 @@ import sys
 from intera_interface import gripper as robot_gripper
 from planning import plan_pyramids
 
-
-
 increment_z = 0.99
 start_y = 0.285
 cup_diameter = 0.378 - 0.285
@@ -26,7 +24,7 @@ def calculate_inter_trans_positions(trans):
     x,y,z = trans[0], trans[1], trans[2]
     return [x, y, z + increment_z]
 
-def construct_request(trans, quad):
+def construct_request(trans, quat, i):
     # Construct the request
     link = "right_gripper_tip"
     request = GetPositionIKRequest()
@@ -104,9 +102,6 @@ def main():
 
         end_inter_trans = [end_inter_trans1, end_inter_trans2, end_inter_trans3]
 
-
-        
-
         # Set up the right gripper
         right_gripper = robot_gripper.Gripper('right_gripper')
 
@@ -121,17 +116,15 @@ def main():
         rospy.sleep(1.0)
         print('Done!')
 
-        og_num_try = 10
-
         for i in range(num_cups):
             # Construct the request
-            start_request = construct_request(start_trans)
+            start_request = construct_request(start_trans, i)
             # Construct the start inter request to move box to goal
-            start_inter_request = construct_request(start_inter_trans)
+            start_inter_request = construct_request(start_inter_trans, i)
             # Construct the end inter request to move box to goal
-            end_inter_request = construct_request(end_inter_trans)
+            end_inter_request = construct_request(end_inter_trans, i)
             # Construct the end request to move box to goal
-            end_request = construct_request(end_trans)
+            end_request = construct_request(end_trans, i)
             print("Trying to move cup number ", str(i + 1))
 
             try:
