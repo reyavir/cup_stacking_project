@@ -361,6 +361,9 @@ NOSETESTS:FILEPATH=/usr/bin/nosetests3
 //The directory containing a CMake configuration file for OpenCV.
 OpenCV_DIR:PATH=/usr/lib/x86_64-linux-gnu/cmake/opencv4
 
+//pkg-config executable
+PKG_CONFIG_EXECUTABLE:FILEPATH=/usr/bin/pkg-config
+
 //Path to a program.
 PYTHON_EXECUTABLE:FILEPATH=/usr/bin/python3
 
@@ -450,6 +453,12 @@ bond_DIR:PATH=/opt/ros/noetic/share/bond/cmake
 
 //The directory containing a CMake configuration file for bondcpp.
 bondcpp_DIR:PATH=/opt/ros/noetic/share/bondcpp/cmake
+
+//The directory containing a CMake configuration file for camera_calibration_parsers.
+camera_calibration_parsers_DIR:PATH=/opt/ros/noetic/share/camera_calibration_parsers/cmake
+
+//The directory containing a CMake configuration file for camera_info_manager.
+camera_info_manager_DIR:PATH=/opt/ros/noetic/share/camera_info_manager/cmake
 
 //The directory containing a CMake configuration file for catkin.
 catkin_DIR:PATH=/opt/ros/noetic/share/catkin/cmake
@@ -563,6 +572,12 @@ kinect_filtering_LIB_DEPENDS:STATIC=general;/opt/ros/noetic/lib/libcv_bridge.so;
 //Path to a library.
 lib:FILEPATH=/opt/ros/noetic/lib/libtf2.so
 
+//Value Computed by CMake
+logitech_cam_BINARY_DIR:STATIC=/home/cc/ee106a/fa23/class/ee106a-adw/ros_workspace/ee106a_finalproject/build/logitech_cam
+
+//Value Computed by CMake
+logitech_cam_SOURCE_DIR:STATIC=/home/cc/ee106a/fa23/class/ee106a-adw/ros_workspace/ee106a_finalproject/src/logitech_cam
+
 //Dependencies for the target
 medianFilter_LIB_DEPENDS:STATIC=general;ar_track_alvar;general;/opt/ros/noetic/lib/libcv_bridge.so;general;/usr/lib/x86_64-linux-gnu/libopencv_calib3d.so.4.2.0;general;/usr/lib/x86_64-linux-gnu/libopencv_dnn.so.4.2.0;general;/usr/lib/x86_64-linux-gnu/libopencv_features2d.so.4.2.0;general;/usr/lib/x86_64-linux-gnu/libopencv_flann.so.4.2.0;general;/usr/lib/x86_64-linux-gnu/libopencv_highgui.so.4.2.0;general;/usr/lib/x86_64-linux-gnu/libopencv_ml.so.4.2.0;general;/usr/lib/x86_64-linux-gnu/libopencv_objdetect.so.4.2.0;general;/usr/lib/x86_64-linux-gnu/libopencv_photo.so.4.2.0;general;/usr/lib/x86_64-linux-gnu/libopencv_stitching.so.4.2.0;general;/usr/lib/x86_64-linux-gnu/libopencv_video.so.4.2.0;general;/usr/lib/x86_64-linux-gnu/libopencv_videoio.so.4.2.0;general;/usr/lib/x86_64-linux-gnu/libopencv_aruco.so.4.2.0;general;/usr/lib/x86_64-linux-gnu/libopencv_bgsegm.so.4.2.0;general;/usr/lib/x86_64-linux-gnu/libopencv_bioinspired.so.4.2.0;general;/usr/lib/x86_64-linux-gnu/libopencv_ccalib.so.4.2.0;general;/usr/lib/x86_64-linux-gnu/libopencv_datasets.so.4.2.0;general;/usr/lib/x86_64-linux-gnu/libopencv_dnn_objdetect.so.4.2.0;general;/usr/lib/x86_64-linux-gnu/libopencv_dnn_superres.so.4.2.0;general;/usr/lib/x86_64-linux-gnu/libopencv_dpm.so.4.2.0;general;/usr/lib/x86_64-linux-gnu/libopencv_face.so.4.2.0;general;/usr/lib/x86_64-linux-gnu/libopencv_freetype.so.4.2.0;general;/usr/lib/x86_64-linux-gnu/libopencv_fuzzy.so.4.2.0;general;/usr/lib/x86_64-linux-gnu/libopencv_hdf.so.4.2.0;general;/usr/lib/x86_64-linux-gnu/libopencv_hfs.so.4.2.0;general;/usr/lib/x86_64-linux-gnu/libopencv_img_hash.so.4.2.0;general;/usr/lib/x86_64-linux-gnu/libopencv_line_descriptor.so.4.2.0;general;/usr/lib/x86_64-linux-gnu/libopencv_optflow.so.4.2.0;general;/usr/lib/x86_64-linux-gnu/libopencv_phase_unwrapping.so.4.2.0;general;/usr/lib/x86_64-linux-gnu/libopencv_plot.so.4.2.0;general;/usr/lib/x86_64-linux-gnu/libopencv_quality.so.4.2.0;general;/usr/lib/x86_64-linux-gnu/libopencv_reg.so.4.2.0;general;/usr/lib/x86_64-linux-gnu/libopencv_rgbd.so.4.2.0;general;/usr/lib/x86_64-linux-gnu/libopencv_saliency.so.4.2.0;general;/usr/lib/x86_64-linux-gnu/libopencv_shape.so.4.2.0;general;/usr/lib/x86_64-linux-gnu/libopencv_stereo.so.4.2.0;general;/usr/lib/x86_64-linux-gnu/libopencv_structured_light.so.4.2.0;general;/usr/lib/x86_64-linux-gnu/libopencv_superres.so.4.2.0;general;/usr/lib/x86_64-linux-gnu/libopencv_surface_matching.so.4.2.0;general;/usr/lib/x86_64-linux-gnu/libopencv_text.so.4.2.0;general;/usr/lib/x86_64-linux-gnu/libopencv_tracking.so.4.2.0;general;/usr/lib/x86_64-linux-gnu/libopencv_videostab.so.4.2.0;general;/usr/lib/x86_64-linux-gnu/libopencv_viz.so.4.2.0;general;/usr/lib/x86_64-linux-gnu/libopencv_ximgproc.so.4.2.0;general;/usr/lib/x86_64-linux-gnu/libopencv_xobjdetect.so.4.2.0;general;/usr/lib/x86_64-linux-gnu/libopencv_xphoto.so.4.2.0;general;/usr/lib/x86_64-linux-gnu/libopencv_core.so.4.2.0;general;/usr/lib/x86_64-linux-gnu/libopencv_imgproc.so.4.2.0;general;/usr/lib/x86_64-linux-gnu/libopencv_imgcodecs.so.4.2.0;general;/opt/ros/noetic/lib/libimage_transport.so;general;/opt/ros/noetic/lib/libpcl_ros_filter.so;general;/opt/ros/noetic/lib/libpcl_ros_tf.so;general;/usr/lib/x86_64-linux-gnu/libboost_thread.so;general;-lpthread;general;/usr/lib/x86_64-linux-gnu/libboost_chrono.so;general;/usr/lib/x86_64-linux-gnu/libboost_atomic.so;general;/usr/lib/x86_64-linux-gnu/libpcl_kdtree.so;general;/usr/lib/x86_64-linux-gnu/libpcl_search.so;general;/usr/lib/x86_64-linux-gnu/libpcl_features.so;general;/usr/lib/x86_64-linux-gnu/libpcl_sample_consensus.so;general;/usr/lib/x86_64-linux-gnu/libpcl_filters.so;general;/usr/lib/x86_64-linux-gnu/libpcl_ml.so;general;/usr/lib/x86_64-linux-gnu/libpcl_segmentation.so;general;/usr/lib/x86_64-linux-gnu/libpcl_surface.so;optimized;/usr/lib/x86_64-linux-gnu/libqhull.so;debug;/usr/lib/x86_64-linux-gnu/libqhull.so;general;/usr/lib/x86_64-linux-gnu/libflann_cpp.so;general;/opt/ros/noetic/lib/libdynamic_reconfigure_config_init_mutex.so;general;/opt/ros/noetic/lib/libnodeletlib.so;general;/opt/ros/noetic/lib/libbondcpp.so;general;/usr/lib/x86_64-linux-gnu/libuuid.so;general;/usr/lib/x86_64-linux-gnu/libpcl_common.so;general;/usr/lib/x86_64-linux-gnu/libpcl_octree.so;general;/usr/lib/x86_64-linux-gnu/libpcl_io.so;general;/usr/lib/x86_64-linux-gnu/libboost_system.so;general;/usr/lib/x86_64-linux-gnu/libboost_filesystem.so;general;/usr/lib/x86_64-linux-gnu/libboost_date_time.so;general;/usr/lib/x86_64-linux-gnu/libboost_iostreams.so;general;/usr/lib/x86_64-linux-gnu/libboost_regex.so;general;/usr/lib/x86_64-linux-gnu/libvtkChartsCore-7.1.so.7.1p.1;general;/usr/lib/x86_64-linux-gnu/libvtkCommonColor-7.1.so.7.1p.1;general;/usr/lib/x86_64-linux-gnu/libvtkCommonCore-7.1.so.7.1p.1;general;/usr/lib/x86_64-linux-gnu/libvtksys-7.1.so.7.1p.1;general;/usr/lib/x86_64-linux-gnu/libvtkCommonDataModel-7.1.so.7.1p.1;general;/usr/lib/x86_64-linux-gnu/libvtkCommonMath-7.1.so.7.1p.1;general;/usr/lib/x86_64-linux-gnu/libvtkCommonMisc-7.1.so.7.1p.1;general;/usr/lib/x86_64-linux-gnu/libvtkCommonSystem-7.1.so.7.1p.1;general;/usr/lib/x86_64-linux-gnu/libvtkCommonTransforms-7.1.so.7.1p.1;general;/usr/lib/x86_64-linux-gnu/libvtkCommonExecutionModel-7.1.so.7.1p.1;general;/usr/lib/x86_64-linux-gnu/libvtkFiltersGeneral-7.1.so.7.1p.1;general;/usr/lib/x86_64-linux-gnu/libvtkCommonComputationalGeometry-7.1.so.7.1p.1;general;/usr/lib/x86_64-linux-gnu/libvtkFiltersCore-7.1.so.7.1p.1;general;/usr/lib/x86_64-linux-gnu/libvtkInfovisCore-7.1.so.7.1p.1;general;/usr/lib/x86_64-linux-gnu/libvtkFiltersExtraction-7.1.so.7.1p.1;general;/usr/lib/x86_64-linux-gnu/libvtkFiltersStatistics-7.1.so.7.1p.1;general;/usr/lib/x86_64-linux-gnu/libvtkImagingFourier-7.1.so.7.1p.1;general;/usr/lib/x86_64-linux-gnu/libvtkImagingCore-7.1.so.7.1p.1;general;/usr/lib/x86_64-linux-gnu/libvtkalglib-7.1.so.7.1p.1;general;/usr/lib/x86_64-linux-gnu/libvtkRenderingContext2D-7.1.so.7.1p.1;general;/usr/lib/x86_64-linux-gnu/libvtkRenderingCore-7.1.so.7.1p.1;general;/usr/lib/x86_64-linux-gnu/libvtkFiltersGeometry-7.1.so.7.1p.1;general;/usr/lib/x86_64-linux-gnu/libvtkFiltersSources-7.1.so.7.1p.1;general;/usr/lib/x86_64-linux-gnu/libvtkRenderingFreeType-7.1.so.7.1p.1;general;/usr/lib/x86_64-linux-gnu/libfreetype.so;general;/usr/lib/x86_64-linux-gnu/libz.so;general;/usr/lib/x86_64-linux-gnu/libvtkFiltersModeling-7.1.so.7.1p.1;general;/usr/lib/x86_64-linux-gnu/libvtkImagingSources-7.1.so.7.1p.1;general;/usr/lib/x86_64-linux-gnu/libvtkInteractionStyle-7.1.so.7.1p.1;general;/usr/lib/x86_64-linux-gnu/libvtkInteractionWidgets-7.1.so.7.1p.1;general;/usr/lib/x86_64-linux-gnu/libvtkFiltersHybrid-7.1.so.7.1p.1;general;/usr/lib/x86_64-linux-gnu/libvtkImagingColor-7.1.so.7.1p.1;general;/usr/lib/x86_64-linux-gnu/libvtkImagingGeneral-7.1.so.7.1p.1;general;/usr/lib/x86_64-linux-gnu/libvtkImagingHybrid-7.1.so.7.1p.1;general;/usr/lib/x86_64-linux-gnu/libvtkIOImage-7.1.so.7.1p.1;general;/usr/lib/x86_64-linux-gnu/libvtkDICOMParser-7.1.so.7.1p.1;general;/usr/lib/x86_64-linux-gnu/libvtkmetaio-7.1.so.7.1p.1;general;/usr/lib/x86_64-linux-gnu/libjpeg.so;general;/usr/lib/x86_64-linux-gnu/libpng.so;general;/usr/lib/x86_64-linux-gnu/libtiff.so;general;/usr/lib/x86_64-linux-gnu/libvtkRenderingAnnotation-7.1.so.7.1p.1;general;/usr/lib/x86_64-linux-gnu/libvtkRenderingVolume-7.1.so.7.1p.1;general;/usr/lib/x86_64-linux-gnu/libvtkIOXML-7.1.so.7.1p.1;general;/usr/lib/x86_64-linux-gnu/libvtkIOCore-7.1.so.7.1p.1;general;/usr/lib/x86_64-linux-gnu/libvtkIOXMLParser-7.1.so.7.1p.1;general;/usr/lib/x86_64-linux-gnu/libexpat.so;general;/usr/lib/x86_64-linux-gnu/libvtkIOGeometry-7.1.so.7.1p.1;general;/usr/lib/x86_64-linux-gnu/libvtkIOLegacy-7.1.so.7.1p.1;general;/usr/lib/x86_64-linux-gnu/libvtkIOPLY-7.1.so.7.1p.1;general;/usr/lib/x86_64-linux-gnu/libvtkRenderingLOD-7.1.so.7.1p.1;general;/usr/lib/x86_64-linux-gnu/libvtkViewsContext2D-7.1.so.7.1p.1;general;/usr/lib/x86_64-linux-gnu/libvtkViewsCore-7.1.so.7.1p.1;general;/usr/lib/x86_64-linux-gnu/libvtkRenderingContextOpenGL2-7.1.so.7.1p.1;general;/usr/lib/x86_64-linux-gnu/libvtkRenderingOpenGL2-7.1.so.7.1p.1;general;/opt/ros/noetic/lib/librosbag.so;general;/opt/ros/noetic/lib/librosbag_storage.so;general;/opt/ros/noetic/lib/libclass_loader.so;general;/usr/lib/x86_64-linux-gnu/libPocoFoundation.so;general;/usr/lib/x86_64-linux-gnu/libdl.so;general;/opt/ros/noetic/lib/libroslib.so;general;/opt/ros/noetic/lib/librospack.so;general;/usr/lib/x86_64-linux-gnu/libpython3.8.so;general;/usr/lib/x86_64-linux-gnu/libboost_program_options.so.1.71.0;general;/usr/lib/x86_64-linux-gnu/libtinyxml2.so;general;/opt/ros/noetic/lib/libroslz4.so;general;/usr/lib/x86_64-linux-gnu/liblz4.so;general;/opt/ros/noetic/lib/libtopic_tools.so;general;/opt/ros/noetic/lib/libresource_retriever.so;general;/opt/ros/noetic/lib/libtf.so;general;/opt/ros/noetic/lib/libtf2_ros.so;general;/opt/ros/noetic/lib/libactionlib.so;general;/opt/ros/noetic/lib/libmessage_filters.so;general;/opt/ros/noetic/lib/libroscpp.so;general;/usr/lib/x86_64-linux-gnu/libpthread.so;general;/usr/lib/x86_64-linux-gnu/libboost_chrono.so.1.71.0;general;/usr/lib/x86_64-linux-gnu/libboost_filesystem.so.1.71.0;general;/opt/ros/noetic/lib/libxmlrpcpp.so;general;/opt/ros/noetic/lib/librosconsole.so;general;/opt/ros/noetic/lib/librosconsole_log4cxx.so;general;/opt/ros/noetic/lib/librosconsole_backend_interface.so;general;/usr/lib/x86_64-linux-gnu/liblog4cxx.so;general;/usr/lib/x86_64-linux-gnu/libboost_regex.so.1.71.0;general;/opt/ros/noetic/lib/libtf2.so;general;/opt/ros/noetic/lib/libroscpp_serialization.so;general;/opt/ros/noetic/lib/librostime.so;general;/usr/lib/x86_64-linux-gnu/libboost_date_time.so.1.71.0;general;/opt/ros/noetic/lib/libcpp_common.so;general;/usr/lib/x86_64-linux-gnu/libboost_system.so.1.71.0;general;/usr/lib/x86_64-linux-gnu/libboost_thread.so.1.71.0;general;/usr/lib/x86_64-linux-gnu/libconsole_bridge.so.0.4;
 
@@ -604,6 +619,12 @@ pcl_msgs_DIR:PATH=/opt/ros/noetic/share/pcl_msgs/cmake
 
 //The directory containing a CMake configuration file for pcl_ros.
 pcl_ros_DIR:PATH=/opt/ros/noetic/share/pcl_ros/cmake
+
+//Path to a library.
+pkgcfg_lib_avcodec_avcodec:FILEPATH=/usr/lib/x86_64-linux-gnu/libavcodec.so
+
+//Path to a library.
+pkgcfg_lib_swscale_swscale:FILEPATH=/usr/lib/x86_64-linux-gnu/libswscale.so
 
 //Value Computed by CMake
 planning_BINARY_DIR:STATIC=/home/cc/ee106a/fa23/class/ee106a-adw/ros_workspace/ee106a_finalproject/build/planning
@@ -700,6 +721,15 @@ topic_tools_DIR:PATH=/opt/ros/noetic/share/topic_tools/cmake
 
 //The directory containing a CMake configuration file for trajectory_msgs.
 trajectory_msgs_DIR:PATH=/opt/ros/noetic/share/trajectory_msgs/cmake
+
+//Value Computed by CMake
+usb_cam_BINARY_DIR:STATIC=/home/cc/ee106a/fa23/class/ee106a-adw/ros_workspace/ee106a_finalproject/build/usb_cam
+
+//Dependencies for the target
+usb_cam_LIB_DEPENDS:STATIC=general;avcodec;general;swscale;general;/opt/ros/noetic/lib/libimage_transport.so;general;/opt/ros/noetic/lib/libmessage_filters.so;general;/opt/ros/noetic/lib/libclass_loader.so;general;/usr/lib/x86_64-linux-gnu/libPocoFoundation.so;general;/usr/lib/x86_64-linux-gnu/libdl.so;general;/opt/ros/noetic/lib/libroslib.so;general;/opt/ros/noetic/lib/librospack.so;general;/usr/lib/x86_64-linux-gnu/libpython3.8.so;general;/usr/lib/x86_64-linux-gnu/libboost_program_options.so.1.71.0;general;/usr/lib/x86_64-linux-gnu/libtinyxml2.so;general;/opt/ros/noetic/lib/libcamera_info_manager.so;general;/opt/ros/noetic/lib/libcamera_calibration_parsers.so;general;/opt/ros/noetic/lib/libroscpp.so;general;/usr/lib/x86_64-linux-gnu/libpthread.so;general;/usr/lib/x86_64-linux-gnu/libboost_chrono.so.1.71.0;general;/usr/lib/x86_64-linux-gnu/libboost_filesystem.so.1.71.0;general;/opt/ros/noetic/lib/librosconsole.so;general;/opt/ros/noetic/lib/librosconsole_log4cxx.so;general;/opt/ros/noetic/lib/librosconsole_backend_interface.so;general;/usr/lib/x86_64-linux-gnu/liblog4cxx.so;general;/usr/lib/x86_64-linux-gnu/libboost_regex.so.1.71.0;general;/opt/ros/noetic/lib/libxmlrpcpp.so;general;/opt/ros/noetic/lib/libroscpp_serialization.so;general;/opt/ros/noetic/lib/librostime.so;general;/usr/lib/x86_64-linux-gnu/libboost_date_time.so.1.71.0;general;/opt/ros/noetic/lib/libcpp_common.so;general;/usr/lib/x86_64-linux-gnu/libboost_system.so.1.71.0;general;/usr/lib/x86_64-linux-gnu/libboost_thread.so.1.71.0;general;/usr/lib/x86_64-linux-gnu/libconsole_bridge.so.0.4;
+
+//Value Computed by CMake
+usb_cam_SOURCE_DIR:STATIC=/home/cc/ee106a/fa23/class/ee106a-adw/ros_workspace/ee106a_finalproject/src/usb_cam
 
 //The directory containing a CMake configuration file for visualization_msgs.
 visualization_msgs_DIR:PATH=/opt/ros/noetic/share/visualization_msgs/cmake
@@ -857,7 +887,7 @@ CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_NM
 CMAKE_NM-ADVANCED:INTERNAL=1
 //number of local generators
-CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=9
+CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=11
 //ADVANCED property for variable: CMAKE_OBJCOPY
 CMAKE_OBJCOPY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_OBJDUMP
@@ -904,6 +934,8 @@ CMAKE_VERBOSE_MAKEFILE-ADVANCED:INTERNAL=1
 FIND_PACKAGE_MESSAGE_DETAILS_OpenCV:INTERNAL=[/usr][v4.2.0()]
 //Details about finding PY_em
 FIND_PACKAGE_MESSAGE_DETAILS_PY_em:INTERNAL=[/usr/lib/python3/dist-packages/em.py][v()]
+//Details about finding PkgConfig
+FIND_PACKAGE_MESSAGE_DETAILS_PkgConfig:INTERNAL=[/usr/bin/pkg-config][v0.29.1()]
 //Details about finding PythonInterp
 FIND_PACKAGE_MESSAGE_DETAILS_PythonInterp:INTERNAL=[/usr/bin/python3][v3.8.10()]
 //Details about finding Threads
@@ -938,6 +970,8 @@ GTEST_LIBRARY_DEBUG-ADVANCED:INTERNAL=1
 GTEST_MAIN_LIBRARY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: GTEST_MAIN_LIBRARY_DEBUG
 GTEST_MAIN_LIBRARY_DEBUG-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: PKG_CONFIG_EXECUTABLE
+PKG_CONFIG_EXECUTABLE-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: PYTHON_EXECUTABLE
 PYTHON_EXECUTABLE-ADVANCED:INTERNAL=1
 //This needs to be in PYTHONPATH when 'setup.py install' is called.
@@ -950,6 +984,45 @@ TinyXML_INCLUDE_DIR-ADVANCED:INTERNAL=1
 TinyXML_LIBRARY-ADVANCED:INTERNAL=1
 //CMAKE_INSTALL_PREFIX during last run
 _GNUInstallDirs_LAST_CMAKE_INSTALL_PREFIX:INTERNAL=/home/cc/ee106a/fa23/class/ee106a-adw/ros_workspace/ee106a_finalproject/install
+__pkg_config_arguments_avcodec:INTERNAL=libavcodec;REQUIRED
+__pkg_config_arguments_swscale:INTERNAL=libswscale;REQUIRED
+__pkg_config_checked_avcodec:INTERNAL=1
+__pkg_config_checked_swscale:INTERNAL=1
+avcodec_CFLAGS:INTERNAL=-I/usr/include/x86_64-linux-gnu
+avcodec_CFLAGS_I:INTERNAL=
+avcodec_CFLAGS_OTHER:INTERNAL=
+avcodec_FOUND:INTERNAL=1
+avcodec_INCLUDEDIR:INTERNAL=/usr/include/x86_64-linux-gnu
+avcodec_INCLUDE_DIRS:INTERNAL=/usr/include/x86_64-linux-gnu
+avcodec_LDFLAGS:INTERNAL=-lavcodec
+avcodec_LDFLAGS_OTHER:INTERNAL=
+avcodec_LIBDIR:INTERNAL=/usr/lib/x86_64-linux-gnu
+avcodec_LIBRARIES:INTERNAL=avcodec
+avcodec_LIBRARY_DIRS:INTERNAL=
+avcodec_LIBS:INTERNAL=
+avcodec_LIBS_L:INTERNAL=
+avcodec_LIBS_OTHER:INTERNAL=
+avcodec_LIBS_PATHS:INTERNAL=
+avcodec_MODULE_NAME:INTERNAL=libavcodec
+avcodec_PREFIX:INTERNAL=/usr
+avcodec_STATIC_CFLAGS:INTERNAL=-I/usr/include/x86_64-linux-gnu
+avcodec_STATIC_CFLAGS_I:INTERNAL=
+avcodec_STATIC_CFLAGS_OTHER:INTERNAL=
+avcodec_STATIC_INCLUDE_DIRS:INTERNAL=/usr/include/x86_64-linux-gnu
+avcodec_STATIC_LDFLAGS:INTERNAL=-lavcodec;-lvpx;-lm;-lvpx;-lm;-lvpx;-lm;-lvpx;-lm;-lwebpmux;-lwebp;-lm;-llzma;-lrsvg-2;-lm;-lgio-2.0;-lgdk_pixbuf-2.0;-lgobject-2.0;-lglib-2.0;-lcairo;-lzvbi;-lm;-lpthread;-lm;-lpng;-lz;-lsnappy;-lstdc++;-lz;-laom;-lm;-lpthread;-lcodec2;-lgsm;-lmp3lame;-lm;-lopenjp2;-lopus;-lm;-lshine;-lspeex;-ltheoraenc;-ltheoradec;-logg;-ltwolame;-lvorbis;-lvorbisenc;-lwavpack;-lwebp;-lx264;-lx265;-lxvidcore;-pthread;-lva;-ldl;-lswresample;-lm;-lsoxr;-lavutil;-pthread;-lva-drm;-lva;-lva-x11;-lva;-lvdpau;-lX11;-lm;-ldrm;-lOpenCL;-lva;-lXv;-lX11;-lXext;-ldl
+avcodec_STATIC_LDFLAGS_OTHER:INTERNAL=-pthread
+avcodec_STATIC_LIBDIR:INTERNAL=
+avcodec_STATIC_LIBRARIES:INTERNAL=avcodec;vpx;m;vpx;m;vpx;m;vpx;m;webpmux;webp;m;lzma;rsvg-2;m;gio-2.0;gdk_pixbuf-2.0;gobject-2.0;glib-2.0;cairo;zvbi;m;pthread;m;png;z;snappy;stdc++;z;aom;m;pthread;codec2;gsm;mp3lame;m;openjp2;opus;m;shine;speex;theoraenc;theoradec;ogg;twolame;vorbis;vorbisenc;wavpack;webp;x264;x265;xvidcore;va;dl;swresample;m;soxr;avutil;va-drm;va;va-x11;va;vdpau;X11;m;drm;OpenCL;va;Xv;X11;Xext;dl
+avcodec_STATIC_LIBRARY_DIRS:INTERNAL=
+avcodec_STATIC_LIBS:INTERNAL=
+avcodec_STATIC_LIBS_L:INTERNAL=
+avcodec_STATIC_LIBS_OTHER:INTERNAL=
+avcodec_STATIC_LIBS_PATHS:INTERNAL=
+avcodec_VERSION:INTERNAL=58.54.100
+avcodec_libavcodec_INCLUDEDIR:INTERNAL=
+avcodec_libavcodec_LIBDIR:INTERNAL=
+avcodec_libavcodec_PREFIX:INTERNAL=
+avcodec_libavcodec_VERSION:INTERNAL=
 //ADVANCED property for variable: gmock_build_tests
 gmock_build_tests-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: gtest_build_samples
@@ -962,4 +1035,44 @@ gtest_disable_pthreads-ADVANCED:INTERNAL=1
 gtest_force_shared_crt-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: gtest_hide_internal_symbols
 gtest_hide_internal_symbols-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: pkgcfg_lib_avcodec_avcodec
+pkgcfg_lib_avcodec_avcodec-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: pkgcfg_lib_swscale_swscale
+pkgcfg_lib_swscale_swscale-ADVANCED:INTERNAL=1
+prefix_result:INTERNAL=/usr/lib/x86_64-linux-gnu
+swscale_CFLAGS:INTERNAL=-I/usr/include/x86_64-linux-gnu
+swscale_CFLAGS_I:INTERNAL=
+swscale_CFLAGS_OTHER:INTERNAL=
+swscale_FOUND:INTERNAL=1
+swscale_INCLUDEDIR:INTERNAL=/usr/include/x86_64-linux-gnu
+swscale_INCLUDE_DIRS:INTERNAL=/usr/include/x86_64-linux-gnu
+swscale_LDFLAGS:INTERNAL=-lswscale
+swscale_LDFLAGS_OTHER:INTERNAL=
+swscale_LIBDIR:INTERNAL=/usr/lib/x86_64-linux-gnu
+swscale_LIBRARIES:INTERNAL=swscale
+swscale_LIBRARY_DIRS:INTERNAL=
+swscale_LIBS:INTERNAL=
+swscale_LIBS_L:INTERNAL=
+swscale_LIBS_OTHER:INTERNAL=
+swscale_LIBS_PATHS:INTERNAL=
+swscale_MODULE_NAME:INTERNAL=libswscale
+swscale_PREFIX:INTERNAL=/usr
+swscale_STATIC_CFLAGS:INTERNAL=-I/usr/include/x86_64-linux-gnu
+swscale_STATIC_CFLAGS_I:INTERNAL=
+swscale_STATIC_CFLAGS_OTHER:INTERNAL=
+swscale_STATIC_INCLUDE_DIRS:INTERNAL=/usr/include/x86_64-linux-gnu
+swscale_STATIC_LDFLAGS:INTERNAL=-lswscale;-lm;-lavutil;-pthread;-lva-drm;-lva;-lva-x11;-lva;-lvdpau;-lX11;-lm;-ldrm;-lOpenCL;-lva;-lXv;-lX11;-lXext;-ldl
+swscale_STATIC_LDFLAGS_OTHER:INTERNAL=-pthread
+swscale_STATIC_LIBDIR:INTERNAL=
+swscale_STATIC_LIBRARIES:INTERNAL=swscale;m;avutil;va-drm;va;va-x11;va;vdpau;X11;m;drm;OpenCL;va;Xv;X11;Xext;dl
+swscale_STATIC_LIBRARY_DIRS:INTERNAL=
+swscale_STATIC_LIBS:INTERNAL=
+swscale_STATIC_LIBS_L:INTERNAL=
+swscale_STATIC_LIBS_OTHER:INTERNAL=
+swscale_STATIC_LIBS_PATHS:INTERNAL=
+swscale_VERSION:INTERNAL=5.5.100
+swscale_libswscale_INCLUDEDIR:INTERNAL=
+swscale_libswscale_LIBDIR:INTERNAL=
+swscale_libswscale_PREFIX:INTERNAL=
+swscale_libswscale_VERSION:INTERNAL=
 

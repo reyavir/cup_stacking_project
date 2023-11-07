@@ -1,0 +1,8 @@
+prefix=/home/cc/ee106a/fa23/class/ee106a-adw/ros_workspace/ee106a_finalproject/install
+
+Name: logitech_cam
+Description: Description of logitech_cam
+Version: 0.0.0
+Cflags: -I${prefix}/include
+Libs: -L${prefix}/lib 
+Requires: 
