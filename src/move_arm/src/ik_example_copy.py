@@ -7,9 +7,10 @@ import numpy as np
 from numpy import linalg
 import sys
 from intera_interface import gripper as robot_gripper
-from planning import plan_pyramids
+from planning import plan_pyramid
 
-increment_z = 0.99
+
+increment_z = 0.128
 start_y = 0.285
 cup_diameter = 0.378 - 0.285
 cup_height = cup_diameter*1.25
@@ -24,7 +25,7 @@ def calculate_inter_trans_positions(trans):
     x,y,z = trans[0], trans[1], trans[2]
     return [x, y, z + increment_z]
 
-def construct_request(trans, quat, i):
+def construct_request(trans, i):
     # Construct the request
     link = "right_gripper_tip"
     request = GetPositionIKRequest()
@@ -94,7 +95,7 @@ def main():
 
         
         end_x, end_y, end_z = 0.793, 0 - cup_diameter, neg_z
-        end_trans = plan_pyramids(num_cups, end_x, end_y, end_z, cup_diameter, cup_height)
+        end_trans = plan_pyramid(num_cups, end_x, end_y, end_z, cup_diameter, cup_height)
 
         end_inter_trans1 = calculate_inter_trans_positions(end_trans[0])
         end_inter_trans2 = calculate_inter_trans_positions(end_trans[1])
@@ -145,7 +146,7 @@ def main():
                 # Open the right gripper
                 print('Opening...')
                 right_gripper.open()
-                rospy.sleep(1.0)
+                rospy.sleep(3.0)
                 print('Done!')
                 # move to end inter
                 move_to_position(end_inter_request, "end_inter")
