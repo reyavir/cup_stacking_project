@@ -10,7 +10,7 @@ from intera_interface import gripper as robot_gripper
 from planning import plan_pyramid
 
 
-increment_z = 0.128
+increment_z = 0.150
 start_y = 0.285
 cup_diameter = 0.378 - 0.285
 cup_height = cup_diameter*1.25
@@ -18,7 +18,7 @@ quat = [0.0, 1.0, 0.0, 0.0]
 neg_z = -0.099
 pos_z = 0.099
 quat = [0.0, 1.0, 0.0, 0.0]
-num_cups = 3
+num_cups = 6
 
 
 def calculate_inter_trans_positions(trans):
@@ -69,7 +69,7 @@ def move_to_position(request, position_name):
 
 def main():
     # get starting positiosn for the cups - hardcode for now (testing with 3 cups)
-    start_trans = [[0.793, start_y, neg_z], [0.793, start_y + cup_diameter, neg_z], [0.793, start_y + cup_diameter*2, neg_z]]
+    start_trans = [[0.793, start_y, neg_z], [0.793, start_y + cup_diameter, neg_z], [0.793, start_y + cup_diameter*2, neg_z], [0.793+cup_diameter, start_y, neg_z], [0.793+cup_diameter, start_y + cup_diameter, neg_z], [0.793+cup_diameter, start_y + cup_diameter*2, neg_z]]
     # Wait for the IK service to become available
     rospy.wait_for_service('compute_ik')
     rospy.init_node('service_query')
@@ -87,21 +87,27 @@ def main():
         # request.ik_request.attempts = 20
         request.ik_request.pose_stamped.header.frame_id = "base"
 
-        start_inter_trans1 = calculate_inter_trans_positions(start_trans[0])
-        start_inter_trans2 = calculate_inter_trans_positions(start_trans[1])
-        start_inter_trans3 = calculate_inter_trans_positions(start_trans[2])
+        # start_inter_trans1 = calculate_inter_trans_positions(start_trans[0])
+        # start_inter_trans2 = calculate_inter_trans_positions(start_trans[1])
+        # start_inter_trans3 = calculate_inter_trans_positions(start_trans[2])
+        start_inter_trans = []
+        for i in range(num_cups):
+            start_inter_trans.append(calculate_inter_trans_positions(start_trans[i]))
 
-        start_inter_trans = [start_inter_trans1, start_inter_trans2, start_inter_trans3]
+        # start_inter_trans = [start_inter_trans1, start_inter_trans2, start_inter_trans3]
 
         
         end_x, end_y, end_z = 0.793, 0 - cup_diameter, neg_z
         end_trans = plan_pyramid(num_cups, end_x, end_y, end_z, cup_diameter, cup_height)
 
-        end_inter_trans1 = calculate_inter_trans_positions(end_trans[0])
-        end_inter_trans2 = calculate_inter_trans_positions(end_trans[1])
-        end_inter_trans3 = calculate_inter_trans_positions(end_trans[2])
+        # end_inter_trans1 = calculate_inter_trans_positions(end_trans[0])
+        # end_inter_trans2 = calculate_inter_trans_positions(end_trans[1])
+        # end_inter_trans3 = calculate_inter_trans_positions(end_trans[2])
 
-        end_inter_trans = [end_inter_trans1, end_inter_trans2, end_inter_trans3]
+        # end_inter_trans = [end_inter_trans1, end_inter_trans2, end_inter_trans3]
+        end_inter_trans = []
+        for i in range(num_cups):
+            end_inter_trans.append(calculate_inter_trans_positions(end_trans[i]))
 
         # Set up the right gripper
         right_gripper = robot_gripper.Gripper('right_gripper')
@@ -140,8 +146,11 @@ def main():
                 # move to start inter
                 move_to_position(start_inter_request, "start_inter")
                 # move to end inter
+                print("Cup number ", i)
+                print("End inter trans", end_inter_trans[i])
                 move_to_position(end_inter_request, "end_inter")
                 # move to end
+                print("End trans", end_trans[i])
                 move_to_position(end_request, "end")
                 # Open the right gripper
                 print('Opening...')
