@@ -69,7 +69,7 @@ class ObjectDetector:
          tag position
       """
       tfBuffer = tf2_ros.Buffer()
-      tfListener = tf2_ros.TransformListener(tfBuffer)   # May not need
+      tfListener = tf2_ros.TransformListener(tfBuffer) 
 
       try:
          source = 'base'
@@ -113,11 +113,6 @@ class ObjectDetector:
       except Exception as e:
          print("Error:", e)
 
-   # def rgb_to_hsv(self, rgb_threshold):
-   #    # Convert the RGB numpy array to an HSV numpy array.
-   #    hsv_threshold = cv.cvtColor(np.uint8([[rgb_threshold]]), cv.COLOR_RGB2HSV)[0][0]
-   #    return hsv_threshold
-
    def process_images(self, ar_tag_locations, im):
       test_img = 'test/cups.jpg'
       pickup_length = 32.5 
@@ -133,6 +128,7 @@ class ObjectDetector:
       H = cv.getPerspectiveTransform(ar_tag_locations, output) 
       rectified_img = cv.warpPerspective(im, H, (maxWidth, maxHeight), flags=cv.INTER_LINEAR)
 
+      # Q: what does this do
       img = rectified_img # find circles based on straightened out image
       # cap = cv.VideoCapture(0)
 
