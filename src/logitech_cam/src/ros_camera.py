@@ -39,9 +39,9 @@ class ObjectDetector:
       self.tf_listener = tf.TransformListener()  # Create a TransformListener object
 
       self.point_pub = rospy.Publisher("goal_point", Point, queue_size=10)
-      self.image_pub = rospy.Publisher('detected_cup', Image, queue_size=10)
-
-      
+      # self.image_pub = rospy.Publisher("detected_cup", Image, queue_size=10)
+      self.image_pub = rospy.Publisher("detected_cup", Point[], queue_size=10)
+      self.image_pub.publish([Point(0.49, 0.624, -0.099)])
 
       rospy.spin()
 

@@ -64,12 +64,22 @@ def move_to_position(request, position_name):
         
         count += 1
 
+def callback(positions):
+    print("Position in Sawyer coordinates:", positions)
+    self.start_trans = []
+    for p in positions:
+        self.start_trans.append([p.x, p.y, p.z])
+    self.num_cups = len(positions)
+    print("CALLBACK:", self.start_trans)
 
+def listener():
+    self.position_sub = rospy.Subscriber("detected_cup", Image, callback)
 
 def main():
     # get starting positiosn for the cups - hardcode for now (testing with 3 cups)
     # start_trans = [[0.793, start_y, neg_z], [0.793, start_y + cup_diameter, neg_z], [0.793, start_y + cup_diameter*2, neg_z], [0.793+cup_diameter, start_y, neg_z], [0.793+cup_diameter, start_y + cup_diameter, neg_z], [0.793+cup_diameter, start_y + cup_diameter*2, neg_z]]
-    start_trans = [[0.49, 0.624, neg_z]]
+    listener()
+    # start_trans = [[0.49, 0.624, neg_z]]
     # Wait for the IK service to become available
     rospy.wait_for_service('compute_ik')
     rospy.init_node('service_query')
