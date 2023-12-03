@@ -26,7 +26,7 @@ def check_homography(image, H, nx, ny, length=TILE_LENGTH):
       ubar = np.dot(H,xbar).T[0]
       u = np.int(ubar[0]/ubar[2])
       v = np.int(ubar[1]/ubar[2])
-      print 'Dot location: ' + str((u,v))
+      print("Dot location: ", str((u,v)))
       cv2.circle(image, (u,v), 5, 0, -1)
   cv2.imshow('Check Homography', image)
 
@@ -60,7 +60,7 @@ if __name__ == '__main__':
   def on_mouse_click(event,x,y,flag,param):
     if(event == cv2.EVENT_LBUTTONUP):
       point = (x,y)
-      print "Point Captured: " + str(point)
+      print( "Point Captured: " + str(point))
       points.append(point)
 
   while not rospy.is_shutdown():
@@ -68,7 +68,7 @@ if __name__ == '__main__':
       # Waits for a key input to continue
       raw_input('Press enter to capture an image:')
     except KeyboardInterrupt:
-      print 'Break from raw_input'
+      print('Break from raw_input')
       break
     
     try:
@@ -126,12 +126,12 @@ if __name__ == '__main__':
       # cv2.destroyAllWindows()
 
     except KeyboardInterrupt:
-      print 'Keyboard Interrupt, exiting'
+      print('Keyboard Interrupt, exiting')
       break
 
     # Catch if anything went wrong with the Image Service
-    except rospy.ServiceException, e:
-      print "image_process: Service call failed: %s"%e
+    except rospy.ServiceException as e:
+      print("image_process: Service call failed: %s"%e)
     
   cv2.destroyAllWindows()
 

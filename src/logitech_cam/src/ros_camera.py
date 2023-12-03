@@ -54,10 +54,12 @@ class ObjectDetector:
          print("Error:", e)
 
 
-   def process_images(self, img):
+   def process_images(self, filename):
+      img = cv.imread(filename)
       og_image = img
       cups = []
 
+      # Circle Detection
       cimg = cv.cvtColor(img,cv.COLOR_RGB2BGR)
       #TODO: should this be plain BGR given ending rosbridge conversion??
       img = cv.medianBlur(img,5)
@@ -66,6 +68,8 @@ class ObjectDetector:
       #                             param1=50,param2=30,minRadius=0,maxRadius=0)
       circles = cv.HoughCircles(img,cv.HOUGH_GRADIENT,1,rows/8,
                                  param1=100,param2=30,minRadius=10,maxRadius=50)
+      
+      # Center Detection
       if circles is not None:
          circles = np.uint16(np.around(circles))
          for i in circles[0,:]:
@@ -79,13 +83,18 @@ class ObjectDetector:
             # draw the center of the circle
             cv.circle(cimg,(i[0],i[1]),2,(0,0,255),3)
 
+      # Testing
+      cv.imshow('detected circles',cimg)
+      cv.waitKey(0)
+      cv.destroyAllWindows()
+
 
       # # If there are no detected points, exit
       # if len(x_coords) == 0 or len(y_coords) == 0:
       #       print("no detected points")
       #       return
 
-      # updated
+      # updated Edge Detection
       img_gray = cv.cvtColor(og_image, cv.COLOR_BGR2GRAY) 
       median = cv.medianBlur(img_gray,5)
       img_blur = cv.GaussianBlur(median, (5,5), 0) 
@@ -132,4 +141,6 @@ class ObjectDetector:
             return
 
 if __name__ == '__main__':
-   ObjectDetector()
+   cam = ObjectDetector()
+
+   cam.process_images("_frame0000.jpg")
