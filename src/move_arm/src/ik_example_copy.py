@@ -17,8 +17,7 @@ cup_height = cup_diameter*1.25
 quat = [0.0, 1.0, 0.0, 0.0]
 neg_z = -0.099
 pos_z = 0.099
-quat = [0.0, 1.0, 0.0, 0.0]
-num_cups = 6
+num_cups = 1
 
 
 def calculate_inter_trans_positions(trans):
@@ -69,7 +68,8 @@ def move_to_position(request, position_name):
 
 def main():
     # get starting positiosn for the cups - hardcode for now (testing with 3 cups)
-    start_trans = [[0.793, start_y, neg_z], [0.793, start_y + cup_diameter, neg_z], [0.793, start_y + cup_diameter*2, neg_z], [0.793+cup_diameter, start_y, neg_z], [0.793+cup_diameter, start_y + cup_diameter, neg_z], [0.793+cup_diameter, start_y + cup_diameter*2, neg_z]]
+    # start_trans = [[0.793, start_y, neg_z], [0.793, start_y + cup_diameter, neg_z], [0.793, start_y + cup_diameter*2, neg_z], [0.793+cup_diameter, start_y, neg_z], [0.793+cup_diameter, start_y + cup_diameter, neg_z], [0.793+cup_diameter, start_y + cup_diameter*2, neg_z]]
+    start_trans = [[0.49, 0.624, neg_z]]
     # Wait for the IK service to become available
     rospy.wait_for_service('compute_ik')
     rospy.init_node('service_query')
@@ -107,6 +107,8 @@ def main():
         # end_inter_trans = [end_inter_trans1, end_inter_trans2, end_inter_trans3]
         end_inter_trans = []
         for i in range(num_cups):
+            print(num_cups)
+            print(end_trans)
             end_inter_trans.append(calculate_inter_trans_positions(end_trans[i]))
 
         # Set up the right gripper

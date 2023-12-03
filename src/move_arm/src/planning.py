@@ -20,6 +20,8 @@ def plan_pyramid(num_cups, start_x, start_y, start_z, cup_diameter, cup_height):
 
 def pyramid_shape(cups):
     layers = 0
+    if cups==1:
+        return 1
     for i in range(1, cups):
         if i > cups:
             break
