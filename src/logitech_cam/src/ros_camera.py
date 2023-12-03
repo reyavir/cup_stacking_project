@@ -29,13 +29,6 @@ class ObjectDetector:
 
       self.color_image_sub = rospy.Subscriber("/camera/color/image_raw", Image, self.color_image_callback)
 
-      self.fx = None
-      self.fy = None
-      self.cx = None
-      self.cy = None
-
-      self.camera_info_sub = rospy.Subscriber("/camera/color/camera_info", CameraInfo, self.camera_info_callback)
-
       self.tf_listener = tf.TransformListener()  # Create a TransformListener object
 
       self.point_pub = rospy.Publisher("cup_locations", PointArray, queue_size=10)
@@ -51,31 +44,11 @@ class ObjectDetector:
 
       rospy.spin()
 
-   def camera_info_callback(self, msg):
-      # TODO: Extract the intrinsic parameters from the CameraInfo message
-      K = msg.K
-      self.fx = K[0]
-      self.fy = K[4]
-      self.cx = K[2]
-      self.cy = K[5]
-
-   def pixel_to_point(self, u, v, depth):
-      # TODO: Use the camera intrinsics to convert pixel coordinates to real-world coordinates
-      X = self.tl[0] - self.bl[0] # actually, i need corner points
-      X = (u - self.cx) * depth / self.fx
-      Y = (v - self.cy) * depth / self.fy
-      Z = depth
-      return X, Y, Z
-   
-
    def color_image_callback(self, msg):
       try:
          # Convert the ROS Image message to an OpenCV image (BGR8 format)
          self.cv_color_image = self.bridge.imgmsg_to_cv2(msg, "bgr8")
-
-         # If we have both color and depth images, process them
-         if self.cv_depth_image is not None:
-               self.process_images()
+         self.process_images()
 
       except Exception as e:
          print("Error:", e)
@@ -85,7 +58,7 @@ class ObjectDetector:
       og_image = img
       cups = []
 
-      cimg = cv.cvtColor(img,cv.COLOR_RGB2BGRA)
+      cimg = cv.cvtColor(img,cv.COLOR_RGB2BGR)
       #TODO: should this be plain BGR given ending rosbridge conversion??
       img = cv.medianBlur(img,5)
       rows = img.shape[0]
@@ -93,17 +66,18 @@ class ObjectDetector:
       #                             param1=50,param2=30,minRadius=0,maxRadius=0)
       circles = cv.HoughCircles(img,cv.HOUGH_GRADIENT,1,rows/8,
                                  param1=100,param2=30,minRadius=10,maxRadius=50)
-      circles = np.uint16(np.around(circles))
-      for i in circles[0,:]:
-         center_x = round(i[0])
-         center_y = round(i[1])
-         # note that this is in pixels
-         # color filtering would go here
-         cups.append([center_x, center_y])
-         # draw the outer circle
-         cv.circle(cimg,(i[0],i[1]),i[2],(0,255,0),2)
-         # draw the center of the circle
-         cv.circle(cimg,(i[0],i[1]),2,(0,0,255),3)
+      if circles is not None:
+         circles = np.uint16(np.around(circles))
+         for i in circles[0,:]:
+            center_x = round(i[0])
+            center_y = round(i[1])
+            # note that this is in pixels
+            # color filtering would go here
+            cups.append([center_x, center_y])
+            # draw the outer circle
+            cv.circle(cimg,(i[0],i[1]),i[2],(0,255,0),2)
+            # draw the center of the circle
+            cv.circle(cimg,(i[0],i[1]),2,(0,0,255),3)
 
 
       # # If there are no detected points, exit
