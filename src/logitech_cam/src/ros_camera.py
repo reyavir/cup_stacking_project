@@ -10,9 +10,10 @@ import matplotlib.pyplot as plt
 import os
 import time
 import tf
-from geometry_msgs.msg import Point, PointStamped
+from geometry_msgs.msg import Point, PointArray, PointStamped
 from std_msgs.msg import Header
 import tf2_ros
+import imutils
 
 
 PLOTS_DIR = os.path.join(os.getcwd(), 'plots')
@@ -27,7 +28,6 @@ class ObjectDetector:
       self.cv_depth_image = None
 
       self.color_image_sub = rospy.Subscriber("/camera/color/image_raw", Image, self.color_image_callback)
-      self.depth_image_sub = rospy.Subscriber("/camera/aligned_depth_to_color/image_raw", Image, self.depth_image_callback)
 
       self.fx = None
       self.fy = None
@@ -38,10 +38,16 @@ class ObjectDetector:
 
       self.tf_listener = tf.TransformListener()  # Create a TransformListener object
 
-      self.point_pub = rospy.Publisher("goal_point", Point, queue_size=10)
-      self.image_pub = rospy.Publisher('detected_cup', Image, queue_size=10)
+      self.point_pub = rospy.Publisher("cup_locations", PointArray, queue_size=10)
+      self.image_pub = rospy.Publisher('detected_cups', Image, queue_size=10)
 
-      
+      self.sawyer_bl = [0.905, -0.005]
+      self.sawyer_br = [0.888, 0.647]
+      self.sawyer_tl = [0.488, -0.005]
+      self.sawyer_x = self.sawyer_bl[0] - self.sawyer_tl[0]
+      self.sawyer_y = self.sawyer_br[1] - self.sawyer_bl[1]
+      self.sawyer_z = -0.099
+      # self.sawyer_tr = [0.471, 0.644]
 
       rospy.spin()
 
@@ -53,45 +59,14 @@ class ObjectDetector:
       self.cx = K[2]
       self.cy = K[5]
 
-   def lookup_tag(tag_number):
-      """
-      Given an AR tag number, this returns the position of the AR tag in the robot's base frame.
-      You can use either this function or try starting the scripts/tag_pub.py script.  More info
-      about that script is in that file.  
-
-      Parameters
-      ----------
-      tag_number : int
-
-      Returns
-      -------
-      3x' :obj:`numpy.ndarray`
-         tag position
-      """
-      tfBuffer = tf2_ros.Buffer()
-      tfListener = tf2_ros.TransformListener(tfBuffer) 
-
-      try:
-         source = 'base'
-         goal = f'ar_marker_{tag_number}'
-         trans = tfBuffer.lookup_transform(source, goal, rospy.Time(0), rospy.Duration(10.0))
-      except Exception as e:
-         print(e)
-         print("Retrying ...")
-
-      tag_pos = [getattr(trans.transform.translation, dim) for dim in ('x', 'y', 'z')]
-      return np.array(tag_pos)
-
    def pixel_to_point(self, u, v, depth):
       # TODO: Use the camera intrinsics to convert pixel coordinates to real-world coordinates
+      X = self.tl[0] - self.bl[0] # actually, i need corner points
       X = (u - self.cx) * depth / self.fx
       Y = (v - self.cy) * depth / self.fy
       Z = depth
       return X, Y, Z
    
-   def pixel_to_table(self, u, v):
-      X = ...
-      Y = ...
 
    def color_image_callback(self, msg):
       try:
@@ -105,104 +80,82 @@ class ObjectDetector:
       except Exception as e:
          print("Error:", e)
 
-   def depth_image_callback(self, msg):
-      try:
-         # Convert the ROS Image message to an OpenCV image (16UC1 format)
-         self.cv_depth_image = self.bridge.imgmsg_to_cv2(msg, "16UC1")
 
-      except Exception as e:
-         print("Error:", e)
-
-   def process_images(self, ar_tag_locations, im):
-      test_img = 'test/cups.jpg'
-      pickup_length = 32.5 
-      pyramid_length = 26.5
-      pickup_width = 17.5
-
-      # TO-DO: find locations of AR tags
+   def process_images(self, img):
+      og_image = img
       cups = []
-      # need 4 point correspondences --> feed in ar tag markers --> square coordinates in pixel dimensions
-      output = [[0,0], [], [], []] # define based on relative ar tag locations - ORDER MATTERS HERE
-      maxWidth = int(pickup_width * 36)
-      maxHeight = int(pickup_length * 36) # define based on relative length of table region
-      H = cv.getPerspectiveTransform(ar_tag_locations, output) 
-      rectified_img = cv.warpPerspective(im, H, (maxWidth, maxHeight), flags=cv.INTER_LINEAR)
 
-      # Q: what does this do
-      img = rectified_img # find circles based on straightened out image
-      # cap = cv.VideoCapture(0)
-
+      cimg = cv.cvtColor(img,cv.COLOR_RGB2BGRA)
+      #TODO: should this be plain BGR given ending rosbridge conversion??
       img = cv.medianBlur(img,5)
-      circles = cv.HoughCircles(img,cv.HOUGH_GRADIENT,1,20,
-                                 param1=50,param2=30,minRadius=0,maxRadius=0)
+      rows = img.shape[0]
+      # circles = cv.HoughCircles(img,cv.HOUGH_GRADIENT,1,20,
+      #                             param1=50,param2=30,minRadius=0,maxRadius=0)
+      circles = cv.HoughCircles(img,cv.HOUGH_GRADIENT,1,rows/8,
+                                 param1=100,param2=30,minRadius=10,maxRadius=50)
       circles = np.uint16(np.around(circles))
       for i in circles[0,:]:
-         center_x = i[0]
-         center_y = i[1]
+         center_x = round(i[0])
+         center_y = round(i[1])
          # note that this is in pixels
          # color filtering would go here
          cups.append([center_x, center_y])
-      
-      # # Convert the color image to HSV color space
-      # hsv = cv.cvtColor(self.cv_color_image, cv.COLOR_BGR2HSV)
-      # print(hsv[(len(hsv) // 2)])
-      # # TODO: Define range for cup color in RGB
-      # # NOTE: You can visualize how this is performing by viewing the result of the segmentation in rviz
-      # # 140 50 50 160 255 255
-      # # Convert RGB thresholds to HSV
-      # lower_hsv = np.array([80, 20, 120])
-      # upper_hsv = np.array([180, 120, 255])
-      # # TODO: Threshold the image to get only cup colors
-      # # HINT: Lookup cv.inRange() or np.where()
-      # mask = cv.inRange(self.cv_color_image, lower_hsv, upper_hsv)
-      # # TODO: Get the coordinates of the cup points on the mask
-      # # HINT: Lookup np.where() or np.nonzero()
-      # y_coords, x_coords = np.nonzero(mask)
+         # draw the outer circle
+         cv.circle(cimg,(i[0],i[1]),i[2],(0,255,0),2)
+         # draw the center of the circle
+         cv.circle(cimg,(i[0],i[1]),2,(0,0,255),3)
+
+
       # # If there are no detected points, exit
       # if len(x_coords) == 0 or len(y_coords) == 0:
       #       print("no detected points")
       #       return
-      # # Calculate the center of the detected region by 
-      # center_x = int(np.mean(x_coords))
-      # center_y = int(np.mean(y_coords))
 
-      # Fetch the depth value at the center
-      depth = self.cv_depth_image[center_y, center_x]
+      # updated
+      img_gray = cv.cvtColor(og_image, cv.COLOR_BGR2GRAY) 
+      median = cv.medianBlur(img_gray,5)
+      img_blur = cv.GaussianBlur(median, (5,5), 0) 
+      edges = cv.Canny(image=img_blur, threshold1=100, threshold2=200) 
 
-      if self.fx and self.fy and self.cx and self.cy:
-         camera_x, camera_y, camera_z = self.pixel_to_point(center_x, center_y, depth)
-         camera_link_x, camera_link_y, camera_link_z = camera_z, -camera_x, -camera_y
-         # Convert from mm to m
-         camera_link_x /= 1000
-         camera_link_y /= 1000
-         camera_link_z /= 1000
+      cnts = cv.findContours(edges.copy(), cv.RETR_LIST, cv.CHAIN_APPROX_SIMPLE)
+      cnts2 = imutils.grab_contours(cnts)
+      c = max(cnts2, key = cv.contourArea)
+      r = cv.minAreaRect(c)
 
-         # Convert the (X, Y, Z) coordinates from camera frame to odom frame
-         try:
-               self.tf_listener.waitForTransform("/odom", "/camera_link", rospy.Time(), rospy.Duration(10.0))
-               point_odom = self.tf_listener.transformPoint("/odom", PointStamped(header=Header(stamp=rospy.Time(), frame_id="/camera_link"), point=Point(camera_link_x, camera_link_y, camera_link_z)))
-               X_odom, Y_odom, Z_odom = point_odom.point.x, point_odom.point.y, point_odom.point.z
-               print("Real-world coordinates in odom frame: (X, Y, Z) = ({:.2f}m, {:.2f}m, {:.2f}m)".format(X_odom, Y_odom, Z_odom))
+      box = cv.boxPoints(r)
+      box = np.int0(box)
+      print(box)
+      # IMPORTANT: Box starts at bottom most point and goes clockwise
+      #TODO: for EX IM, starts at bottom right but may need to adjust later
 
-               if X_odom < 0.001 and X_odom > -0.001:
-                  print("Erroneous goal point, not publishing")
-               else:
-                  print("Publishing goal point: ", X_odom, Y_odom, Z_odom)
-                  # Publish the transformed point
-                  self.point_pub.publish(Point(X_odom, Y_odom, Z_odom))
+      br = box[0]
+      bl = box[1]
+      tl = box[2] # if this is not accurate everything is thrown off
 
-                  # Overlay cup points on color image for visualization
-                  cup_img = self.cv_color_image.copy()
-                  cup_img[y_coords, x_coords] = [0, 0, 255]  # Highlight cup points in red
-                  cv.circle(cup_img, (center_x, center_y), 5, [0, 255, 0], -1)  # Draw green circle at center
-                  
-                  # Convert to ROS Image message and publish
-                  ros_image = self.bridge.cv2_to_imgmsg(cup_img, "bgr8")
-                  self.image_pub.publish(ros_image)
-         except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException) as e:
-               print("TF Error")
-               print(e)
-               return
+      x_pix = abs(bl[0] - tl[0])
+      y_pix = abs(br[1] - bl[1])
+
+      # find Sawyer coordinates of cups
+      points = []
+      for c in cups:
+         u, v = c
+         # set tl to be offset origin & br to be largest values
+         x_diff = self.sawyer_x * ((u - tl[0]) / x_pix)
+         y_diff = self.sawyer_y * ((v - tl[1]) / y_pix)
+         points.append(Point(tl[0] + x_diff, tl[1] + y_diff, self.sawyer_z))
+
+      # Convert the (X, Y, Z) coordinates from camera frame to odom frame
+      try:
+            # Publish the transformed point
+            self.point_pub.publish(points)
+            
+            # Convert to ROS Image message and publish
+            ros_image = self.bridge.cv2_to_imgmsg(cimg, "bgr8")
+            self.image_pub.publish(ros_image)
+      except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException) as e:
+            print("TF Error")
+            print(e)
+            return
 
 if __name__ == '__main__':
    ObjectDetector()
