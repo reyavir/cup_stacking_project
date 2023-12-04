@@ -27,7 +27,8 @@ class ObjectDetector:
       self.cv_color_image = None
       self.cv_depth_image = None
 
-      self.color_image_sub = rospy.Subscriber("/camera/color/image_raw", Image, self.color_image_callback)
+      print("attempting to subscribe to usb_cam")
+      self.color_image_sub = rospy.Subscriber("/io/internal_camera/right_hand_camera/image_raw", Image, self.color_image_callback)
 
       self.tf_listener = tf.TransformListener()  # Create a TransformListener object
 
@@ -46,18 +47,24 @@ class ObjectDetector:
 
    def color_image_callback(self, msg):
       try:
+         print("entering color_image_callback")
          # Convert the ROS Image message to an OpenCV image (BGR8 format)
          self.cv_color_image = self.bridge.imgmsg_to_cv2(msg, "bgr8")
-         self.process_images()
+         self.process_images("frame0000.jpg")
 
       except Exception as e:
          print("Error:", e)
 
 
    def process_images(self, filename):
+      print("attempting to process image")
+      # img = self.cv_color_image
       img = cv.imread(filename)
+      img = img.astype(np.uint8)
       og_image = img
       cups = []
+      img_gray = cv.cvtColor(og_image, cv.COLOR_BGR2GRAY) 
+
 
       # Circle Detection
       cimg = cv.cvtColor(img,cv.COLOR_RGB2BGR)
@@ -66,9 +73,10 @@ class ObjectDetector:
       rows = img.shape[0]
       # circles = cv.HoughCircles(img,cv.HOUGH_GRADIENT,1,20,
       #                             param1=50,param2=30,minRadius=0,maxRadius=0)
-      circles = cv.HoughCircles(img,cv.HOUGH_GRADIENT,1,rows/8,
+      print("calc hough circles")
+      circles = cv.HoughCircles(img_gray,cv.HOUGH_GRADIENT,1,rows/8,
                                  param1=100,param2=30,minRadius=10,maxRadius=50)
-      
+      print("circles detected ")
       # Center Detection
       if circles is not None:
          circles = np.uint16(np.around(circles))
@@ -84,9 +92,9 @@ class ObjectDetector:
             cv.circle(cimg,(i[0],i[1]),2,(0,0,255),3)
 
       # Testing
-      cv.imshow('detected circles',cimg)
-      cv.waitKey(0)
-      cv.destroyAllWindows()
+      # cv.imshow('detected circles',cimg)
+      # cv.waitKey(0)
+      # cv.destroyAllWindows()
 
 
       # # If there are no detected points, exit
@@ -95,7 +103,6 @@ class ObjectDetector:
       #       return
 
       # updated Edge Detection
-      img_gray = cv.cvtColor(og_image, cv.COLOR_BGR2GRAY) 
       median = cv.medianBlur(img_gray,5)
       img_blur = cv.GaussianBlur(median, (5,5), 0) 
       edges = cv.Canny(image=img_blur, threshold1=100, threshold2=200) 
@@ -127,7 +134,9 @@ class ObjectDetector:
          x_diff = self.sawyer_x * ((u - tl[0]) / x_pix)
          y_diff = self.sawyer_y * ((v - tl[1]) / y_pix)
          pose = Pose(Point(tl[0] + x_diff, tl[1] + y_diff, self.sawyer_z), Quaternion(quat[0], quat[1], quat[2], quat[3]))
-         pose_arr.append(pose)
+         pose_arr.poses.append(pose)
+
+      print("PoseArray: ", pose_arr)
 
       # Convert the (X, Y, Z) coordinates from camera frame to odom frame
       try:
@@ -150,4 +159,4 @@ class ObjectDetector:
 if __name__ == '__main__':
    cam = ObjectDetector()
 
-   cam.process_images("frame0000.jpg")
+   # cam.process_images()
