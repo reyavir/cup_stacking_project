@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import rospy
 from moveit_msgs.srv import GetPositionIK, GetPositionIKRequest, GetPositionIKResponse
-from geometry_msgs.msg import PoseStamped
+from geometry_msgs.msg import PoseStamped, PoseArray
 from moveit_commander import MoveGroupCommander
 import numpy as np
 from numpy import linalg
@@ -64,25 +64,14 @@ def move_to_position(request, position_name):
         
         count += 1
 
-def callback(positions):
-    print("Position in Sawyer coordinates:", positions)
-    self.start_trans = []
-    for p in positions:
-        self.start_trans.append([p.x, p.y, p.z])
-    self.num_cups = len(positions)
-    print("CALLBACK:", self.start_trans)
-
-def listener():
-    self.position_sub = rospy.Subscriber("detected_cup", Image, callback)
-
-def main():
-    # get starting positiosn for the cups - hardcode for now (testing with 3 cups)
-    # start_trans = [[0.793, start_y, neg_z], [0.793, start_y + cup_diameter, neg_z], [0.793, start_y + cup_diameter*2, neg_z], [0.793+cup_diameter, start_y, neg_z], [0.793+cup_diameter, start_y + cup_diameter, neg_z], [0.793+cup_diameter, start_y + cup_diameter*2, neg_z]]
-    listener()
-    # start_trans = [[0.49, 0.624, neg_z]]
-    # Wait for the IK service to become available
-    rospy.wait_for_service('compute_ik')
-    rospy.init_node('service_query')
+def callback(message):
+    print("Message in Sawyer coordinates:", message)
+    start_trans = []
+    for pose in message.poses:
+        pos = pose.position
+        start_trans.append([pos.x, pos.y, pos.z])
+    num_cups = len(message.poses)
+    print("start_trans: ", start_trans)
     while not rospy.is_shutdown():
         input('Press [ Enter ]: ')
         
@@ -175,6 +164,19 @@ def main():
             except rospy.ServiceException as e:
                 print("Service call failed: %s"%e)
 
+def listener():
+    rospy.Subscriber("cup_locations", PoseArray, callback)
+
+    # Terminate upon Ctrl+c
+    rospy.spin()
+
 # Python's syntax for a main() method
 if __name__ == '__main__':
-    main()
+    # get starting positiosn for the cups - hardcode for now (testing with 3 cups)
+    # start_trans = [[0.793, start_y, neg_z], [0.793, start_y + cup_diameter, neg_z], [0.793, start_y + cup_diameter*2, neg_z], [0.793+cup_diameter, start_y, neg_z], [0.793+cup_diameter, start_y + cup_diameter, neg_z], [0.793+cup_diameter, start_y + cup_diameter*2, neg_z]]
+    # start_trans = [[0.49, 0.624, neg_z]]
+    # Wait for the IK service to become available
+    rospy.wait_for_service('compute_ik')
+    rospy.init_node('service_query')
+    
+    listener()
