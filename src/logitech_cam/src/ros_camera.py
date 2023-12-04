@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import os
 import time
 import tf
-from geometry_msgs.msg import Point, PointArray, PointStamped
+from geometry_msgs.msg import Point, PoseArray, PointStamped, Pose, Quaternion
 from std_msgs.msg import Header
 import tf2_ros
 import imutils
@@ -31,7 +31,7 @@ class ObjectDetector:
 
       self.tf_listener = tf.TransformListener()  # Create a TransformListener object
 
-      self.point_pub = rospy.Publisher("cup_locations", PointArray, queue_size=10)
+      self.point_pub = rospy.Publisher("cup_locations", PoseArray, queue_size=10)
       self.image_pub = rospy.Publisher('detected_cups', Image, queue_size=10)
 
       self.sawyer_bl = [0.905, -0.005]
@@ -119,22 +119,29 @@ class ObjectDetector:
       y_pix = abs(br[1] - bl[1])
 
       # find Sawyer coordinates of cups
-      points = []
+      quat = [0.0, 1.0, 0.0, 0.0]
+      pose_arr = PoseArray()
       for c in cups:
          u, v = c
          # set tl to be offset origin & br to be largest values
          x_diff = self.sawyer_x * ((u - tl[0]) / x_pix)
          y_diff = self.sawyer_y * ((v - tl[1]) / y_pix)
-         points.append(Point(tl[0] + x_diff, tl[1] + y_diff, self.sawyer_z))
+         pose = Pose(Point(tl[0] + x_diff, tl[1] + y_diff, self.sawyer_z), Quaternion(quat[0], quat[1], quat[2], quat[3]))
+         pose_arr.append(pose)
 
       # Convert the (X, Y, Z) coordinates from camera frame to odom frame
       try:
+            r = rospy.Rate(10)
             # Publish the transformed point
-            self.point_pub.publish(points)
-            
-            # Convert to ROS Image message and publish
-            ros_image = self.bridge.cv2_to_imgmsg(cimg, "bgr8")
-            self.image_pub.publish(ros_image)
+            while not rospy.is_shutdown():
+               #Publish the transformed point
+               self.point_pub.publish(pose_arr)
+               
+               # Convert to ROS Image message and publish
+               ros_image = self.bridge.cv2_to_imgmsg(cimg, "bgr8")
+               self.image_pub.publish(ros_image)
+
+               r.sleep()
       except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException) as e:
             print("TF Error")
             print(e)
@@ -143,4 +150,4 @@ class ObjectDetector:
 if __name__ == '__main__':
    cam = ObjectDetector()
 
-   cam.process_images("_frame0000.jpg")
+   cam.process_images("frame0000.jpg")
