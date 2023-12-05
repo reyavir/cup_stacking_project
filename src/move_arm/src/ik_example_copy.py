@@ -21,7 +21,6 @@ num_cups = 1
 
 start_trans = []
 
-
 def calculate_inter_trans_positions(trans):
     x,y,z = trans[0], trans[1], trans[2]
     return [x, y, z + increment_z]
@@ -69,19 +68,33 @@ def move_to_position(request, position_name):
 def callback(positions):
     print("Position in Sawyer coordinates:", positions)
     start_trans = []
-    for p in positions:
+    for p in positions.poses:
+        p = p.position
         start_trans.append([p.x, p.y, p.z])
-    num_cups = len(positions)
+    num_cups = len(positions.poses)
     print("CALLBACK:", start_trans)
+    print("Num start positions: " + str(num_cups))
+
+# pos_sub = rospy.Subscriber("cup_locations", PoseArray, callback)
 
 def main():
     # get starting positiosn for the cups - hardcode for now (testing with 3 cups)
     # start_trans = [[0.793, start_y, neg_z], [0.793, start_y + cup_diameter, neg_z], [0.793, start_y + cup_diameter*2, neg_z], [0.793+cup_diameter, start_y, neg_z], [0.793+cup_diameter, start_y + cup_diameter, neg_z], [0.793+cup_diameter, start_y + cup_diameter*2, neg_z]]
-    position_sub = rospy.Subscriber("cup_locations", PoseArray, callback)
     # start_trans = [[0.49, 0.624, neg_z]]
     # Wait for the IK service to become available
     rospy.wait_for_service('compute_ik')
     rospy.init_node('service_query')
+    rospy.wait_for_service('cup_locations')
+    cup_positions = rospy.ServiceProxy("cup_locations", PoseArray)
+    print("cup_positions: " + cup_positions)
+    start_trans = []
+    for p in cup_positions.poses:
+        p = p.position
+        start_trans.append([p.x, p.y, p.z])
+    num_cups = len(cup_positions.poses)
+    print("start_trans:", start_trans)
+    print("Num start positions: " + str(num_cups))
+
     while not rospy.is_shutdown():
         input('Press [ Enter ]: ')
         

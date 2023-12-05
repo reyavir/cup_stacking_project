@@ -59,14 +59,14 @@ if __name__ == '__main__':
   # list 'points'
   def on_mouse_click(event,x,y,flag,param):
     if(event == cv2.EVENT_LBUTTONUP):
-      point = (x,y)
+      point = [x,y]
       print( "Point Captured: " + str(point))
       points.append(point)
 
   while not rospy.is_shutdown():
     try:
       # Waits for a key input to continue
-      raw_input('Press enter to capture an image:')
+      input('Press enter to capture an image:')
     except KeyboardInterrupt:
       print('Break from raw_input')
       break
@@ -102,18 +102,29 @@ if __name__ == '__main__':
       #   | v1 v2 v3 v4 |
       uv = np.array(points).T
 
+      # rectified coordinates | outside corner | 28.5 x 17.5 | BR BL TL TR
+      # 1280 x 720
+      dst = np.float32([[1172, 719], [0, 719], [0,0], [1172, 0]])
+
 # === YOUR CODE HERE ===========================================================
       
       # This is placeholder code that will draw a 4 by 3 grid in the corner of
       # the image
       nx = 4
       ny = 3
-      H = np.eye(3)
+      print(points)
+      M = cv2.getPerspectiveTransform(np.float32(points),dst)
+      img = bridge.imgmsg_to_cv2(ros_img_msg,'bgr8')
+      size = (1173, 720)
+      out = cv2.warpPerspective(img,M,size,flags=cv2.INTER_LINEAR)
 
 # ==============================================================================
       
       # Check the produced homography matrix
-      check_homography(np_image, H, nx, ny)
+      # check_homography(np_image, H, nx, ny)
+      cv2.imshow('Check Homography', out)
+      cv2.imwrite('homography.jpg', out)
+
 
       # Loop until the user presses a key
       key = -1

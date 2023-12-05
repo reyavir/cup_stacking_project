@@ -19,8 +19,12 @@ import imutils
 PLOTS_DIR = os.path.join(os.getcwd(), 'plots')
 
 class ObjectDetector:
+   def point_srv_callback(self):
+      return self.poses
+
    def __init__(self):
       rospy.init_node('object_detector', anonymous=True)
+      self.poses = []
 
       self.bridge = CvBridge()
 
@@ -32,7 +36,8 @@ class ObjectDetector:
 
       self.tf_listener = tf.TransformListener()  # Create a TransformListener object
 
-      self.point_pub = rospy.Publisher("cup_locations", PoseArray, queue_size=10)
+      # self.point_pub = rospy.Publisher("cup_locations", PoseArray, queue_size=10)
+      self.point_service = rospy.Service("cup_locations", PoseArray, self.point_srv_callback)
       self.image_pub = rospy.Publisher('detected_cups', Image, queue_size=10)
 
       self.sawyer_bl = [0.905, -0.005]
@@ -50,7 +55,7 @@ class ObjectDetector:
          print("entering color_image_callback")
          # Convert the ROS Image message to an OpenCV image (BGR8 format)
          self.cv_color_image = self.bridge.imgmsg_to_cv2(msg, "bgr8")
-         self.process_images("frame0000.jpg")
+         self.process_images("homography.jpg")
 
       except Exception as e:
          print("Error:", e)
@@ -58,9 +63,9 @@ class ObjectDetector:
 
    def process_images(self, filename):
       print("attempting to process image")
-      img = self.cv_color_image
-      # img = cv.imread(filename)
-      # img = img.astype(np.uint8)
+      # img = self.cv_color_image
+      img = cv.imread(filename)
+      img = img.astype(np.uint8)
       og_image = img
       cups = []
       img_gray = cv.cvtColor(og_image, cv.COLOR_BGR2GRAY) 
@@ -89,6 +94,7 @@ class ObjectDetector:
             cv.circle(cimg,(i[0],i[1]),i[2],(0,255,0),2)
             # draw the center of the circle
             cv.circle(cimg,(i[0],i[1]),2,(0,0,255),3)
+         print(str(len(cups)) + " circles detected")
 
       # # If there are no detected points, exit
       # if len(x_coords) == 0 or len(y_coords) == 0:
@@ -120,9 +126,9 @@ class ObjectDetector:
       # cv.circle(cimg,(max_x,min_y),2,(255,255,255),3)
       cv.circle(cimg,(min_x,max_y),2,(255,255,255),3)
 
-      print("hull")
-      print(hull)
-      print("hull")
+      # print("hull")
+      # print(hull)
+      # print("hull")
       # IMPORTANT: Box starts at bottom most point and goes clockwise
       #TODO: for EX IM, starts at bottom right but may need to adjust later
 
@@ -130,8 +136,8 @@ class ObjectDetector:
       bl = box[1]
       tl = box[2] # if this is not accurate everything is thrown off
 
-      x_pix = abs(bl[0] - tl[0])
-      y_pix = abs(br[1] - bl[1])
+      x_pix = 1173 # abs(bl[0] - tl[0])
+      y_pix = 720 # abs(br[1] - bl[1])
 
       # find Sawyer coordinates of cups
       quat = [0.0, 1.0, 0.0, 0.0]
@@ -139,11 +145,14 @@ class ObjectDetector:
       for c in cups:
          u, v = c
          # set tl to be offset origin & br to be largest values
-         x_diff = self.sawyer_x * ((u - tl[0]) / x_pix)
-         y_diff = self.sawyer_y * ((v - tl[1]) / y_pix)
-         pose = Pose(Point(tl[0] + x_diff, tl[1] + y_diff, self.sawyer_z), Quaternion(quat[0], quat[1], quat[2], quat[3]))
+         # x_diff = self.sawyer_x * ((u - tl[0]) / x_pix)
+         # y_diff = self.sawyer_y * ((v - tl[1]) / y_pix)
+         x_diff = self.sawyer_x * (v / y_pix) # sawyer x is vertical
+         y_diff = self.sawyer_y * (u / x_pix) # sawyer x is horizontal
+         pose = Pose(Point(self.sawyer_tl[0] + x_diff, self.sawyer_tl[1] + y_diff, self.sawyer_z),
+                      Quaternion(quat[0], quat[1], quat[2], quat[3]))
          pose_arr.poses.append(pose)
-
+      self.poses = pose_arr.poses
       print("PoseArray: ", pose_arr)
 
       # Convert the (X, Y, Z) coordinates from camera frame to odom frame
@@ -152,7 +161,8 @@ class ObjectDetector:
             # Publish the transformed point
             while not rospy.is_shutdown():
                #Publish the transformed point
-               self.point_pub.publish(pose_arr)
+               # self.point_pub.publish(pose_arr)
+               self.point_service(pose_arr)
                
                # Convert to ROS Image message and publish
                ros_image = self.bridge.cv2_to_imgmsg(cimg, "bgr8")
