@@ -28,7 +28,7 @@ class ObjectDetector:
       self.cv_depth_image = None
 
       print("attempting to subscribe to usb_cam")
-      self.color_image_sub = rospy.Subscriber("/io/internal_camera/right_hand_camera/image_raw", Image, self.color_image_callback)
+      self.color_image_sub = rospy.Subscriber("/usb_cam/image_raw", Image, self.color_image_callback)
 
       self.tf_listener = tf.TransformListener()  # Create a TransformListener object
 
@@ -58,9 +58,9 @@ class ObjectDetector:
 
    def process_images(self, filename):
       print("attempting to process image")
-      # img = self.cv_color_image
-      img = cv.imread(filename)
-      img = img.astype(np.uint8)
+      img = self.cv_color_image
+      # img = cv.imread(filename)
+      # img = img.astype(np.uint8)
       og_image = img
       cups = []
       img_gray = cv.cvtColor(og_image, cv.COLOR_BGR2GRAY) 
@@ -91,12 +91,6 @@ class ObjectDetector:
             # draw the center of the circle
             cv.circle(cimg,(i[0],i[1]),2,(0,0,255),3)
 
-      # Testing
-      # cv.imshow('detected circles',cimg)
-      # cv.waitKey(0)
-      # cv.destroyAllWindows()
-
-
       # # If there are no detected points, exit
       # if len(x_coords) == 0 or len(y_coords) == 0:
       #       print("no detected points")
@@ -110,11 +104,26 @@ class ObjectDetector:
       cnts = cv.findContours(edges.copy(), cv.RETR_LIST, cv.CHAIN_APPROX_SIMPLE)
       cnts2 = imutils.grab_contours(cnts)
       c = max(cnts2, key = cv.contourArea)
+      print("contour")
+      print(len(c))
       r = cv.minAreaRect(c)
+      hull = np.array(cv.convexHull(c))
 
       box = cv.boxPoints(r)
       box = np.int0(box)
       print(box)
+
+      first = hull[:, 0, 0]
+      sec = hull[:, 0, 1]
+      cv.drawContours(cimg, [hull], 0, (255, 0, 0), 2)
+      max_x, min_x = max(first), min(first)
+      max_y, min_y = max(sec), min(sec)
+      # cv.circle(cimg,(max_x,min_y),2,(255,255,255),3)
+      cv.circle(cimg,(min_x,max_y),2,(255,255,255),3)
+
+      print("hull")
+      print(hull)
+      print("hull")
       # IMPORTANT: Box starts at bottom most point and goes clockwise
       #TODO: for EX IM, starts at bottom right but may need to adjust later
 
