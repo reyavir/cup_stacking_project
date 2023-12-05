@@ -65,7 +65,6 @@ class ObjectDetector:
       cups = []
       img_gray = cv.cvtColor(og_image, cv.COLOR_BGR2GRAY) 
 
-
       # Circle Detection
       cimg = cv.cvtColor(img,cv.COLOR_RGB2BGR)
       #TODO: should this be plain BGR given ending rosbridge conversion??
@@ -115,7 +114,7 @@ class ObjectDetector:
 
       first = hull[:, 0, 0]
       sec = hull[:, 0, 1]
-      cv.drawContours(cimg, [hull], 0, (255, 0, 0), 2)
+      cv.drawContours(cimg, [box], 0, (255, 0, 0), 2)
       max_x, min_x = max(first), min(first)
       max_y, min_y = max(sec), min(sec)
       # cv.circle(cimg,(max_x,min_y),2,(255,255,255),3)

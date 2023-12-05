@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import rospy
 from moveit_msgs.srv import GetPositionIK, GetPositionIKRequest, GetPositionIKResponse
-from geometry_msgs.msg import PoseStamped
+from geometry_msgs.msg import PoseArray
 from moveit_commander import MoveGroupCommander
 import numpy as np
 from numpy import linalg
@@ -18,6 +18,8 @@ quat = [0.0, 1.0, 0.0, 0.0]
 neg_z = -0.099
 pos_z = 0.099
 num_cups = 1
+
+start_trans = []
 
 
 def calculate_inter_trans_positions(trans):
@@ -66,19 +68,16 @@ def move_to_position(request, position_name):
 
 def callback(positions):
     print("Position in Sawyer coordinates:", positions)
-    self.start_trans = []
+    start_trans = []
     for p in positions:
-        self.start_trans.append([p.x, p.y, p.z])
-    self.num_cups = len(positions)
-    print("CALLBACK:", self.start_trans)
-
-def listener():
-    self.position_sub = rospy.Subscriber("detected_cup", Image, callback)
+        start_trans.append([p.x, p.y, p.z])
+    num_cups = len(positions)
+    print("CALLBACK:", start_trans)
 
 def main():
     # get starting positiosn for the cups - hardcode for now (testing with 3 cups)
     # start_trans = [[0.793, start_y, neg_z], [0.793, start_y + cup_diameter, neg_z], [0.793, start_y + cup_diameter*2, neg_z], [0.793+cup_diameter, start_y, neg_z], [0.793+cup_diameter, start_y + cup_diameter, neg_z], [0.793+cup_diameter, start_y + cup_diameter*2, neg_z]]
-    listener()
+    position_sub = rospy.Subscriber("cup_locations", PoseArray, callback)
     # start_trans = [[0.49, 0.624, neg_z]]
     # Wait for the IK service to become available
     rospy.wait_for_service('compute_ik')
