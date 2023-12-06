@@ -40,8 +40,8 @@ class ObjectDetector:
       self.image_pub = rospy.Publisher('detected_cups', Image, queue_size=10)
 
       self.sawyer_bl = [0.871, 0.046]
-      self.sawyer_tr = [0.444, 0.737]
-      self.sawyer_tl = [0.487, 0.046]
+      self.sawyer_tr = [0.474, 0.737]     # [0.444, 0.737] 
+      self.sawyer_tl = [0.517, 0.046]        # [0.487, 0.046]
       self.sawyer_x = self.sawyer_bl[0] - self.sawyer_tl[0]
       self.sawyer_y = self.sawyer_tr[1] - self.sawyer_bl[1]
       self.sawyer_z = -0.099
@@ -77,18 +77,20 @@ class ObjectDetector:
       #TODO: should this be plain BGR given ending rosbridge conversion??
       img = cv.medianBlur(img,5)
       rows = img.shape[0]
+      print("rows is: ", rows)
       # circles = cv.HoughCircles(img,cv.HOUGH_GRADIENT,1,20,
       #                             param1=50,param2=30,minRadius=0,maxRadius=0)
       print("calc hough circles")
-      circles = cv.HoughCircles(img_gray,cv.HOUGH_GRADIENT,1,rows/8,
-                                 param1=100,param2=30,minRadius=10,maxRadius=50)
+      circles = cv.HoughCircles(img_gray,cv.HOUGH_GRADIENT,1,rows/6,
+                                 param1=100,param2=30,minRadius=70,maxRadius=100)
       print("circles detected ")
       # Center Detection
       if circles is not None:
          circles = np.uint16(np.around(circles))
          for i in circles[0,:]:
-            center_x = round(i[0])
-            center_y = round(i[1])
+            center_x = i[0]
+            center_y = i[1]
+            print("radius of circle # ", i, " is: ", i[2])
             # note that this is in pixels
             # color filtering would go here
             cups.append([center_x, center_y])
@@ -97,6 +99,7 @@ class ObjectDetector:
             # draw the center of the circle
             cv.circle(cimg,(i[0],i[1]),2,(0,0,255),3)
          print(str(len(cups)) + " circles detected")
+
 
       # # If there are no detected points, exit
       # if len(x_coords) == 0 or len(y_coords) == 0:

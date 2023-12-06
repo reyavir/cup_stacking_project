@@ -19,6 +19,23 @@ quat = [0.0, 1.0, 0.0, 0.0]
 neg_z = -0.099
 pos_z = 0.099
 num_cups = 0
+small_x_offset = -0.033
+big_x_offset = -0.06
+big_y_offset = 0.011
+small_y_offset = 0.0
+
+sawyer_bl = [0.871, 0.046]
+sawyer_tr = [0.474, 0.737]     # [0.444, 0.737] 
+sawyer_tl = [0.517, 0.046]        # [0.487, 0.046]
+sawyer_br = [sawyer_bl[0], sawyer_tr[1]]
+sawyer_x = sawyer_bl[0] - sawyer_tl[0]
+sawyer_y = sawyer_tr[1] - sawyer_bl[1]
+
+# [min_x, max_x, min_y, max_y]
+TL_grid = [sawyer_tl[0], sawyer_bl[0] - sawyer_x / 2, sawyer_tl[1], sawyer_tr[1] - sawyer_y / 2]
+TR_grid = [sawyer_tl[0], sawyer_bl[0] - sawyer_x / 2, sawyer_tr[1] - sawyer_y / 2, sawyer_tr[1]]
+BL_grid = [sawyer_bl[0] - sawyer_x / 2, sawyer_bl[0], sawyer_tl[1], sawyer_tr[1] - sawyer_y / 2]
+BR_grid = [sawyer_bl[0] - sawyer_x / 2, sawyer_bl[0], sawyer_tr[1] - sawyer_y / 2, sawyer_tr[1]]
 
 start_trans = []
 
@@ -26,7 +43,7 @@ def calculate_inter_trans_positions(trans):
     x,y,z = trans[0], trans[1], trans[2]
     return [x, y, z + increment_z]
 
-def construct_request(trans, i):
+def construct_request(trans, i, is_start_trans):
     # Construct the request
     link = "right_gripper_tip"
     request = GetPositionIKRequest()
@@ -34,8 +51,34 @@ def construct_request(trans, i):
     request.ik_request.ik_link_name = link
     request.ik_request.pose_stamped.header.frame_id = "base"
 
-    request.ik_request.pose_stamped.pose.position.x = trans[i][0]
-    request.ik_request.pose_stamped.pose.position.y = trans[i][1]
+    trans_x = trans[i][0]
+    trans_y = trans[i][1]
+
+    # If cup is TL or TR
+    if not is_start_trans:
+        request.ik_request.pose_stamped.pose.position.x = trans_x
+        request.ik_request.pose_stamped.pose.position.y = trans_y
+    elif trans_x >= TL_grid[0] and trans_x <= TL_grid[1]:
+        # TL grid: big x & big y
+        if trans_y >= sawyer_tl[1] and trans_y <= sawyer_tr[1] - sawyer_y / 2:
+            request.ik_request.pose_stamped.pose.position.x = trans_x + big_x_offset
+            request.ik_request.pose_stamped.pose.position.y = trans_y + big_y_offset        # make smaller?
+        # TR grid: big x & small y
+        elif trans_y >= sawyer_tr[1] - sawyer_y / 2 and trans_y <= sawyer_tr[1]:
+            request.ik_request.pose_stamped.pose.position.x = trans_x + big_x_offset
+            request.ik_request.pose_stamped.pose.position.y = trans_y + small_y_offset
+    elif trans_x >= BL_grid[0] and trans_x <= BL_grid[1]:
+        # BL grid: small x & big y
+        if trans_y >= sawyer_tl[1] and trans_y <= sawyer_tr[1] - sawyer_y / 2:
+            request.ik_request.pose_stamped.pose.position.x = trans_x + small_x_offset
+            request.ik_request.pose_stamped.pose.position.y = trans_y + big_y_offset
+        # BR grid: big x & big y
+        elif trans_y >= sawyer_tr[1] - sawyer_y / 2 and trans_y <= sawyer_tr[1]:
+            request.ik_request.pose_stamped.pose.position.x = trans_x + big_x_offset
+            request.ik_request.pose_stamped.pose.position.y = trans_y + big_y_offset
+    
+
+    
     request.ik_request.pose_stamped.pose.position.z = trans[i][2]    
     request.ik_request.pose_stamped.pose.orientation.x = quat[0]
     request.ik_request.pose_stamped.pose.orientation.y = quat[1]
@@ -110,7 +153,7 @@ def main():
         request.ik_request.ik_link_name = link
         # request.ik_request.attempts = 20
         request.ik_request.pose_stamped.header.frame_id = "base"
-        end_x, end_y, end_z = 0.793, 0 - cup_diameter, neg_z
+        end_x, end_y, end_z = 0.793, 0 - 2*cup_diameter, neg_z      
         end_trans = plan_pyramid(num_cups, end_x, end_y, end_z, cup_diameter, cup_height)
 
         # start_inter_trans1 = calculate_inter_trans_positions(start_trans[0])
@@ -149,13 +192,13 @@ def main():
 
         for i in range(num_cups):
             # Construct the request
-            start_request = construct_request(start_trans, i)
+            start_request = construct_request(start_trans, i, True)
             # Construct the start inter request to move box to goal
-            start_inter_request = construct_request(start_inter_trans, i)
+            start_inter_request = construct_request(start_inter_trans, i, False)
             # Construct the end inter request to move box to goal
-            end_inter_request = construct_request(end_inter_trans, i)
+            end_inter_request = construct_request(end_inter_trans, i, False)
             # Construct the end request to move box to goal
-            end_request = construct_request(end_trans, i)
+            end_request = construct_request(end_trans, i, False)
             print("Trying to move cup number ", str(i + 1))
 
             try:
