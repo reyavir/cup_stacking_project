@@ -70,11 +70,25 @@ class ObjectDetector:
       img = img.astype(np.uint8)
       og_image = img
       cups = []
+      cimg = cv.cvtColor(img,cv.COLOR_RGB2BGR)
+
       img_gray = cv.cvtColor(og_image, cv.COLOR_BGR2GRAY) 
+      img_hsv = cv.cvtColor(og_image, cv.COLOR_BGR2HSV)
+      lower_hsv = np.array([100, 150, 100])
+      upper_hsv = np.array([200, 255, 255])
+
+      mask = cv.inRange(img_hsv, lower_hsv, upper_hsv)
+      y, x = np.nonzero(mask)
+
+      cont, _ = cv.findCountours(mask, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
+      for c in cont:
+         m = cv.moments(c)
+         if m["m00"] != 0:
+            c_x = int(m["m10"] / m["m00"])
+            c_y = int(m["m01"] / m["m00"])
+            cv.circle(cimg, (c_x, c_y), 5, (255, 0, 0), -1)
 
       # Circle Detection
-      cimg = cv.cvtColor(img,cv.COLOR_RGB2BGR)
-      #TODO: should this be plain BGR given ending rosbridge conversion??
       img = cv.medianBlur(img,5)
       rows = img.shape[0]
       # circles = cv.HoughCircles(img,cv.HOUGH_GRADIENT,1,20,
