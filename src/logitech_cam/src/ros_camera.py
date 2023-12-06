@@ -5,6 +5,7 @@ import cv2 as cv
 import numpy as np
 from sensor_msgs.msg import Image
 from sensor_msgs.msg import CameraInfo # For camera intrinsic parameters
+from logitech_cam.srv import PositionSrv 
 from cv_bridge import CvBridge
 import matplotlib.pyplot as plt
 import os
@@ -19,8 +20,6 @@ import imutils
 PLOTS_DIR = os.path.join(os.getcwd(), 'plots')
 
 class ObjectDetector:
-   def point_srv_callback(self):
-      return self.poses
 
    def __init__(self):
       rospy.init_node('object_detector', anonymous=True)
@@ -37,18 +36,21 @@ class ObjectDetector:
       self.tf_listener = tf.TransformListener()  # Create a TransformListener object
 
       # self.point_pub = rospy.Publisher("cup_locations", PoseArray, queue_size=10)
-      self.point_service = rospy.Service("cup_locations", PoseArray, self.point_srv_callback)
+      self.point_service = rospy.Service("cup_locations", PositionSrv, self.point_srv_callback)
       self.image_pub = rospy.Publisher('detected_cups', Image, queue_size=10)
 
-      self.sawyer_bl = [0.905, -0.005]
-      self.sawyer_br = [0.888, 0.647]
-      self.sawyer_tl = [0.488, -0.005]
+      self.sawyer_bl = [0.871, 0.046]
+      self.sawyer_tr = [0.444, 0.737]
+      self.sawyer_tl = [0.487, 0.046]
       self.sawyer_x = self.sawyer_bl[0] - self.sawyer_tl[0]
-      self.sawyer_y = self.sawyer_br[1] - self.sawyer_bl[1]
+      self.sawyer_y = self.sawyer_tr[1] - self.sawyer_bl[1]
       self.sawyer_z = -0.099
       # self.sawyer_tr = [0.471, 0.644]
 
       rospy.spin()
+
+   def point_srv_callback(self, request):
+      return self.poses
 
    def color_image_callback(self, msg):
       try:
@@ -162,7 +164,7 @@ class ObjectDetector:
             while not rospy.is_shutdown():
                #Publish the transformed point
                # self.point_pub.publish(pose_arr)
-               self.point_service(pose_arr)
+               self.poses = pose_arr
                
                # Convert to ROS Image message and publish
                ros_image = self.bridge.cv2_to_imgmsg(cimg, "bgr8")

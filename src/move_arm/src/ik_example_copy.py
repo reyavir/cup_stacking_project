@@ -2,6 +2,7 @@
 import rospy
 from moveit_msgs.srv import GetPositionIK, GetPositionIKRequest, GetPositionIKResponse
 from geometry_msgs.msg import PoseArray
+from logitech_cam.srv import PositionSrv
 from moveit_commander import MoveGroupCommander
 import numpy as np
 from numpy import linalg
@@ -17,7 +18,7 @@ cup_height = cup_diameter*1.25
 quat = [0.0, 1.0, 0.0, 0.0]
 neg_z = -0.099
 pos_z = 0.099
-num_cups = 1
+num_cups = 0
 
 start_trans = []
 
@@ -85,12 +86,13 @@ def main():
     rospy.wait_for_service('compute_ik')
     rospy.init_node('service_query')
     rospy.wait_for_service('cup_locations')
-    cup_positions = rospy.ServiceProxy("cup_locations", PoseArray)
-    print("cup_positions: " + cup_positions)
+    position_service = rospy.ServiceProxy("cup_locations", PositionSrv)
+    cup_positions = position_service().positions
     start_trans = []
     for p in cup_positions.poses:
         p = p.position
         start_trans.append([p.x, p.y, p.z])
+    start_trans.sort(key = lambda x: x[1])
     num_cups = len(cup_positions.poses)
     print("start_trans:", start_trans)
     print("Num start positions: " + str(num_cups))
@@ -108,19 +110,17 @@ def main():
         request.ik_request.ik_link_name = link
         # request.ik_request.attempts = 20
         request.ik_request.pose_stamped.header.frame_id = "base"
+        end_x, end_y, end_z = 0.793, 0 - cup_diameter, neg_z
+        end_trans = plan_pyramid(num_cups, end_x, end_y, end_z, cup_diameter, cup_height)
 
         # start_inter_trans1 = calculate_inter_trans_positions(start_trans[0])
         # start_inter_trans2 = calculate_inter_trans_positions(start_trans[1])
         # start_inter_trans3 = calculate_inter_trans_positions(start_trans[2])
         start_inter_trans = []
-        for i in range(num_cups):
+        for i in range(len(end_trans)):
             start_inter_trans.append(calculate_inter_trans_positions(start_trans[i]))
 
         # start_inter_trans = [start_inter_trans1, start_inter_trans2, start_inter_trans3]
-
-        
-        end_x, end_y, end_z = 0.793, 0 - cup_diameter, neg_z
-        end_trans = plan_pyramid(num_cups, end_x, end_y, end_z, cup_diameter, cup_height)
 
         # end_inter_trans1 = calculate_inter_trans_positions(end_trans[0])
         # end_inter_trans2 = calculate_inter_trans_positions(end_trans[1])
@@ -128,7 +128,7 @@ def main():
 
         # end_inter_trans = [end_inter_trans1, end_inter_trans2, end_inter_trans3]
         end_inter_trans = []
-        for i in range(num_cups):
+        for i in range(len(end_trans)):
             print(num_cups)
             print(end_trans)
             end_inter_trans.append(calculate_inter_trans_positions(end_trans[i]))

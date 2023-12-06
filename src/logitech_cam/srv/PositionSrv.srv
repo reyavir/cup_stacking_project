@@ -1,0 +1,4 @@
+# An empty request
+---
+# A response containing cup positions
+geometry_msgs/PoseArray positions
