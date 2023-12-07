@@ -19,10 +19,11 @@ quat = [0.0, 1.0, 0.0, 0.0]
 neg_z = -0.099
 pos_z = 0.099
 num_cups = 0
-small_x_offset = -0.033
-big_x_offset = -0.06
-big_y_offset = 0.011
-small_y_offset = 0.0
+small_x_offset = 0.01
+big_x_offset = -0.010
+TR_x_offset = -0.05
+big_y_offset = 0.025
+small_y_offset = -0.005
 
 sawyer_bl = [0.871, 0.046]
 sawyer_tr = [0.474, 0.737]     # [0.444, 0.737] 
@@ -63,9 +64,9 @@ def construct_request(trans, i, is_start_trans):
         if trans_y >= sawyer_tl[1] and trans_y <= sawyer_tr[1] - sawyer_y / 2:
             request.ik_request.pose_stamped.pose.position.x = trans_x + big_x_offset
             request.ik_request.pose_stamped.pose.position.y = trans_y + big_y_offset        # make smaller?
-        # TR grid: big x & small y
+        # TR grid: TR_x_offset & small y
         elif trans_y >= sawyer_tr[1] - sawyer_y / 2 and trans_y <= sawyer_tr[1]:
-            request.ik_request.pose_stamped.pose.position.x = trans_x + big_x_offset
+            request.ik_request.pose_stamped.pose.position.x = trans_x + TR_x_offset
             request.ik_request.pose_stamped.pose.position.y = trans_y + small_y_offset
     elif trans_x >= BL_grid[0] and trans_x <= BL_grid[1]:
         # BL grid: small x & big y
