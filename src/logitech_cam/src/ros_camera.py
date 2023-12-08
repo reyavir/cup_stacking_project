@@ -25,15 +25,15 @@ class ObjectDetector:
       rospy.init_node('object_detector', anonymous=True)
       self.poses = []
 
-#       self.bridge = CvBridge()
+      self.bridge = CvBridge()
 
-#       self.cv_color_image = None
-#       self.cv_depth_image = None
+      self.cv_color_image = None
+      self.cv_depth_image = None
 
       print("attempting to subscribe to usb_cam")
       self.color_image_sub = rospy.Subscriber("/usb_cam/image_raw", Image, self.color_image_callback)
 
-#       self.tf_listener = tf.TransformListener()  # Create a TransformListener object
+      self.tf_listener = tf.TransformListener()  # Create a TransformListener object
 
       # self.point_pub = rospy.Publisher("cup_locations", PoseArray, queue_size=10)
       self.point_service = rospy.Service("cup_locations", PositionSrv, self.point_srv_callback)
@@ -47,7 +47,7 @@ class ObjectDetector:
       self.sawyer_z = -0.099
       # self.sawyer_tr = [0.471, 0.644]
 
-#       rospy.spin()
+      rospy.spin()
 
    def point_srv_callback(self, request):
       return self.poses

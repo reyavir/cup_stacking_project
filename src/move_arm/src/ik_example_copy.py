@@ -13,8 +13,14 @@ from planning import plan_pyramid
 
 increment_z = 0.150
 start_y = 0.285
+# Big Cups
 cup_diameter = 0.378 - 0.285
 cup_height = cup_diameter*1.25
+
+# Small Cups
+cup_diameter = (0.378 - 0.285) - 0.01
+cup_height = cup_diameter*1.1
+
 quat = [0.0, 1.0, 0.0, 0.0]
 neg_z = -0.099
 pos_z = 0.099
@@ -110,21 +116,6 @@ def move_to_position(request, position_name):
         
         count += 1
 
-def callback(positions):
-    print("Position in Sawyer coordinates:", positions)
-    start_trans = []
-    for p in positions.poses:
-        p = p.position
-        start_trans.append([p.x, p.y, p.z])
-    num_cups = len(positions.poses)
-    print("CALLBACK:", start_trans)
-    print("Num start positions: " + str(num_cups))
-
-    while not rospy.is_shutdown():
-        end_trans = stacking(start_trans=start_trans, num_cups=num_cups)
-
-        destacking(end_trans, num_cups)
-
 # pos_sub = rospy.Subscriber("cup_locations", PoseArray, callback)
 def stacking(start_trans, num_cups):
     input('Press [ Enter ] to start stacking: ')
@@ -147,13 +138,13 @@ def stacking(start_trans, num_cups):
     # start_inter_trans = [start_inter_trans1, start_inter_trans2, start_inter_trans3]
 
     
-    end_x, end_y, end_z = 0.793, 0 - cup_diameter, neg_z
+    end_x, end_y, end_z = 0.793, 0 - (num_cups//2)*cup_diameter, neg_z
     end_trans = plan_pyramid(num_cups, end_x, end_y, end_z, cup_diameter, cup_height)
-
+    num_valid_cups = len(end_trans)
 
     # end_inter_trans = [end_inter_trans1, end_inter_trans2, end_inter_trans3]
     end_inter_trans = []
-    for i in range(num_cups):
+    for i in range(num_valid_cups):
         print(num_cups)
         print(end_trans)
         end_inter_trans.append(calculate_inter_trans_positions(end_trans[i]))
@@ -166,7 +157,7 @@ def stacking(start_trans, num_cups):
     right_gripper.calibrate()
     rospy.sleep(3.0)
 
-    for i in range(num_cups):
+    for i in range(num_valid_cups):
         # Construct the request
         start_request = construct_request(start_trans, i, True)
         # Construct the start inter request to move box to goal
@@ -240,8 +231,7 @@ def destacking(start_trans, num_cups):
     end_x_pos = sawyer_x / 2 + sawyer_tl[0]
     end_y_pos = sawyer_y / 2 + sawyer_tl[1]
     end_z_pos = neg_z
-    end_trans = [[end_x_pos, end_y_pos, end_z_pos]]
-    end_inter_trans = [[end_x_pos, end_y_pos, end_z_pos + cup_height]]
+    end_inter_trans = [[end_x_pos, end_y_pos, end_z_pos + 2*cup_height]]
 
 
     # # end_inter_trans = [end_inter_trans1, end_inter_trans2, end_inter_trans3]
@@ -254,10 +244,10 @@ def destacking(start_trans, num_cups):
     # Set up the right gripper
     right_gripper = robot_gripper.Gripper('right_gripper')
 
-    # Calibrate the gripper (other commands won't work unless you do this first)
-    print('Calibrating...')
-    right_gripper.calibrate()
-    rospy.sleep(2.0)
+    # # Calibrate the gripper (other commands won't work unless you do this first)
+    # print('Calibrating...')
+    # right_gripper.calibrate()
+    # rospy.sleep(2.0)
 
     # Open the right gripper
     print('Opening...')
@@ -265,56 +255,76 @@ def destacking(start_trans, num_cups):
     rospy.sleep(1.0)
     print('Done!')
 
-    for i in range(num_cups-1, -1, -1):
+    num_valid_cups = len(start_trans)
+
+    for i in range(num_valid_cups-1, -1, -1):
         # Construct the request
         start_request = construct_request(start_trans, i, False)
         # Construct the start inter request to move box to goal
         start_inter_request = construct_request(start_inter_trans, i, False)
 
-        # Add minor z difference to avoid cups being smashed
-
         # Construct the end inter request to move box to goal
-        end_inter_request = construct_request(end_inter_trans, i, False)
+        end_inter_request = construct_request(end_inter_trans, 0, False)
         # Construct the end request to move box to goal
-        end_request = construct_request(end_trans, i, False)
+        end_trans = [[end_x_pos, end_y_pos, end_z_pos + (num_valid_cups-i)*0.03]]
+        end_request = construct_request(end_trans, 0, False)
         print("Trying to move cup number ", str(i + 1))
 
         try:
+            # move to pre start
+            move_to_position(start_inter_request, "pre_start")
+            # move to start
+            move_to_position(start_request, "start")
+            # Close the right gripper
+            print('Closing...')
+            right_gripper.close()
+            rospy.sleep(1.0)
+            # move to start inter
+            move_to_position(start_inter_request, "start_inter")
             # move to end inter
             print("Cup number ", i)
-            print("End inter trans", end_inter_trans[i])
+            print("End inter trans", end_inter_trans[0])
             move_to_position(end_inter_request, "end_inter")
+            # move to end
+            print("End trans", end_trans[0])
+            move_to_position(end_request, "end")
             # Open the right gripper
             print('Opening...')
             right_gripper.open()
             rospy.sleep(3.0)
             print('Done!')
-            # move to end
-            print("End trans", end_trans[i])
-            move_to_position(end_request, "end")
-            # Close the right gripper
-            print('Closing...')
-            right_gripper.close()
-            rospy.sleep(1.0)
             # move to end inter
             move_to_position(end_inter_request, "end_inter")
-            # move to start inter
-            move_to_position(start_inter_request, "start_inter")
-            # move to start
-            move_to_position(start_request, "start")
-            # move to pre start
-            move_to_position(start_inter_request, "pre_start")
         except rospy.ServiceException as e:
             print("Service call failed: %s"%e)
 
-def listener():
-    rospy.Subscriber("cup_locations", PoseArray, callback)
+def main():
+    rospy.wait_for_service('compute_ik')
+    rospy.init_node('service_query')
+    rospy.wait_for_service('cup_locations')
+    position_service = rospy.ServiceProxy("cup_locations", PositionSrv)
+    positions = position_service().positions
 
-    # Terminate upon Ctrl+c
-    rospy.spin()
+    print("Position in Sawyer coordinates:", positions)
+    start_trans = []
+    for p in positions.poses:
+        p = p.position
+        start_trans.append([p.x, p.y, p.z])
+    start_trans.sort(key = lambda x: x[1])
+    num_cups = len(positions.poses)
+    print("CALLBACK:", start_trans)
+    print("Num start positions: " + str(num_cups))
+
+    while not rospy.is_shutdown():
+        end_trans = stacking(start_trans=start_trans, num_cups=num_cups)
+
+        destacking(end_trans, num_cups)
+
+        # Terminate upon Ctrl+c
+        rospy.spin()
 
 if __name__ == '__main__':
     rospy.wait_for_service('compute_ik')
     rospy.init_node('service_query')
     
-    listener()
+    main()
