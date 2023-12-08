@@ -114,10 +114,10 @@ class ObjectDetector:
                   dst = d
             if dst < i[2]:
                cups.append([center_x, center_y])
-            # draw the outer circle
-            cv.circle(cimg,(i[0],i[1]),i[2],(0,255,0),2)
-            # draw the center of the circle
-            cv.circle(cimg,(i[0],i[1]),2,(0,0,255),3)
+               # draw the outer circle
+               cv.circle(cimg,(i[0],i[1]),i[2],(0,255,0),2)
+               # draw the center of the circle
+               cv.circle(cimg,(i[0],i[1]),2,(0,0,255),3)
          print(str(len(cups)) + " circles detected")
 
       # # If there are no detected points, exit
