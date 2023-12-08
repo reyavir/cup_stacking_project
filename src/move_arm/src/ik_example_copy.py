@@ -19,10 +19,10 @@ quat = [0.0, 1.0, 0.0, 0.0]
 neg_z = -0.099
 pos_z = 0.099
 num_cups = 0
-small_x_offset = 0.01
-big_x_offset = -0.010
+small_x_offset = -0.01
+big_x_offset = -0.04
 TR_x_offset = -0.05
-big_y_offset = 0.025
+big_y_offset = 0.015
 small_y_offset = -0.005
 
 sawyer_bl = [0.871, 0.046]
@@ -31,6 +31,9 @@ sawyer_tl = [0.517, 0.046]        # [0.487, 0.046]
 sawyer_br = [sawyer_bl[0], sawyer_tr[1]]
 sawyer_x = sawyer_bl[0] - sawyer_tl[0]
 sawyer_y = sawyer_tr[1] - sawyer_bl[1]
+
+end_x_pos = sawyer_x / 2 + sawyer_tl[0]
+end_y_pos = sawyer_y / 2 + sawyer_tl[1]
 
 # [min_x, max_x, min_y, max_y]
 TL_grid = [sawyer_tl[0], sawyer_bl[0] - sawyer_x / 2, sawyer_tl[1], sawyer_tr[1] - sawyer_y / 2]
