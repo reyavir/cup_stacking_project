@@ -32,9 +32,6 @@ sawyer_br = [sawyer_bl[0], sawyer_tr[1]]
 sawyer_x = sawyer_bl[0] - sawyer_tl[0]
 sawyer_y = sawyer_tr[1] - sawyer_bl[1]
 
-end_x_pos = sawyer_x / 2 + sawyer_tl[0]
-end_y_pos = sawyer_y / 2 + sawyer_tl[1]
-
 # [min_x, max_x, min_y, max_y]
 TL_grid = [sawyer_tl[0], sawyer_bl[0] - sawyer_x / 2, sawyer_tl[1], sawyer_tr[1] - sawyer_y / 2]
 TR_grid = [sawyer_tl[0], sawyer_bl[0] - sawyer_x / 2, sawyer_tr[1] - sawyer_y / 2, sawyer_tr[1]]
@@ -124,9 +121,9 @@ def callback(positions):
     print("Num start positions: " + str(num_cups))
 
     while not rospy.is_shutdown():
-        stacking(start_trans=start_trans, num_cups=num_cups)
+        end_trans = stacking(start_trans=start_trans, num_cups=num_cups)
 
-        destacking(start_trans, num_cups)
+        destacking(end_trans, num_cups)
 
 # pos_sub = rospy.Subscriber("cup_locations", PoseArray, callback)
 def stacking(start_trans, num_cups):
@@ -142,7 +139,7 @@ def stacking(start_trans, num_cups):
     request.ik_request.ik_link_name = link
     # request.ik_request.attempts = 20
     request.ik_request.pose_stamped.header.frame_id = "base"
-    
+
     start_inter_trans = []
     for i in range(num_cups):
         start_inter_trans.append(calculate_inter_trans_positions(start_trans[i]))
@@ -171,13 +168,13 @@ def stacking(start_trans, num_cups):
 
     for i in range(num_cups):
         # Construct the request
-        start_request = construct_request(start_trans, i)
+        start_request = construct_request(start_trans, i, True)
         # Construct the start inter request to move box to goal
-        start_inter_request = construct_request(start_inter_trans, i)
+        start_inter_request = construct_request(start_inter_trans, i, False)
         # Construct the end inter request to move box to goal
-        end_inter_request = construct_request(end_inter_trans, i)
+        end_inter_request = construct_request(end_inter_trans, i, False)
         # Construct the end request to move box to goal
-        end_request = construct_request(end_trans, i)
+        end_request = construct_request(end_trans, i, False)
         print("Trying to move cup number ", str(i + 1))
 
         # Open the right gripper
@@ -216,7 +213,10 @@ def stacking(start_trans, num_cups):
         except rospy.ServiceException as e:
             print("Service call failed: %s"%e)
 
+    return end_trans
+
 def destacking(start_trans, num_cups):
+
     input('Press [ Enter ] for destacking: ')
         
     # Construct the request
@@ -237,16 +237,19 @@ def destacking(start_trans, num_cups):
     # start_inter_trans = [start_inter_trans1, start_inter_trans2, start_inter_trans3]
 
     
-    end_x, end_y, end_z = 0.793, 0 - cup_diameter, neg_z
-    end_trans = plan_pyramid(num_cups, end_x, end_y, end_z, cup_diameter, cup_height)
+    end_x_pos = sawyer_x / 2 + sawyer_tl[0]
+    end_y_pos = sawyer_y / 2 + sawyer_tl[1]
+    end_z_pos = neg_z
+    end_trans = [[end_x_pos, end_y_pos, end_z_pos]]
+    end_inter_trans = [[end_x_pos, end_y_pos, end_z_pos + cup_height]]
 
 
-    # end_inter_trans = [end_inter_trans1, end_inter_trans2, end_inter_trans3]
-    end_inter_trans = []
-    for i in range(num_cups):
-        print(num_cups)
-        print(end_trans)
-        end_inter_trans.append(calculate_inter_trans_positions(end_trans[i]))
+    # # end_inter_trans = [end_inter_trans1, end_inter_trans2, end_inter_trans3]
+    # end_inter_trans = []
+    # for i in range(num_cups):
+    #     print(num_cups)
+    #     print(end_trans)
+    #     end_inter_trans.append(calculate_inter_trans_positions(end_trans[i]))
 
     # Set up the right gripper
     right_gripper = robot_gripper.Gripper('right_gripper')
@@ -264,13 +267,16 @@ def destacking(start_trans, num_cups):
 
     for i in range(num_cups-1, -1, -1):
         # Construct the request
-        start_request = construct_request(start_trans, i)
+        start_request = construct_request(start_trans, i, False)
         # Construct the start inter request to move box to goal
-        start_inter_request = construct_request(start_inter_trans, i)
+        start_inter_request = construct_request(start_inter_trans, i, False)
+
+        # Add minor z difference to avoid cups being smashed
+
         # Construct the end inter request to move box to goal
-        end_inter_request = construct_request(end_inter_trans, i)
+        end_inter_request = construct_request(end_inter_trans, i, False)
         # Construct the end request to move box to goal
-        end_request = construct_request(end_trans, i)
+        end_request = construct_request(end_trans, i, False)
         print("Trying to move cup number ", str(i + 1))
 
         try:
