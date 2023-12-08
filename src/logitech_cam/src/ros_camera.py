@@ -70,18 +70,33 @@ class ObjectDetector:
       img = img.astype(np.uint8)
       og_image = img
       cups = []
+      cimg = img.copy() # cv.cvtColor(img,cv.COLOR_RGB2BGR)
+
       img_gray = cv.cvtColor(og_image, cv.COLOR_BGR2GRAY) 
+      img_hsv = cv.cvtColor(og_image, cv.COLOR_BGR2HSV)
+      lower_hsv = np.array([100, 120, 100])
+      upper_hsv = np.array([200, 255, 255])
+
+      mask = cv.inRange(img_hsv, lower_hsv, upper_hsv)
+      y, x = np.nonzero(mask)
+
+      cont, _ = cv.findContours(mask, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
+      hsv_centers = []
+      for c in cont:
+         m = cv.moments(c)
+         if m["m00"] != 0:
+            c_x = int(m["m10"] / m["m00"])
+            c_y = int(m["m01"] / m["m00"])
+            hsv_centers.append([c_x, c_y])
+            cv.circle(cimg, (c_x, c_y), 5, (255, 0, 0), -1)
 
       # Circle Detection
-      cimg = cv.cvtColor(img,cv.COLOR_RGB2BGR)
-      #TODO: should this be plain BGR given ending rosbridge conversion??
       img = cv.medianBlur(img,5)
       rows = img.shape[0]
-      print("rows is: ", rows)
       # circles = cv.HoughCircles(img,cv.HOUGH_GRADIENT,1,20,
       #                             param1=50,param2=30,minRadius=0,maxRadius=0)
       print("calc hough circles")
-      circles = cv.HoughCircles(img_gray,cv.HOUGH_GRADIENT,1,rows/6,
+      circles = cv.HoughCircles(img_gray,cv.HOUGH_GRADIENT,1,rows/8,
                                  param1=100,param2=30,minRadius=70,maxRadius=100)
       print("circles detected ")
       # Center Detection
@@ -90,16 +105,25 @@ class ObjectDetector:
          for i in circles[0,:]:
             center_x = i[0]
             center_y = i[1]
-            print("radius of circle # ", i, " is: ", i[2])
             # note that this is in pixels
             # color filtering would go here
-            cups.append([center_x, center_y])
-            # draw the outer circle
-            cv.circle(cimg,(i[0],i[1]),i[2],(0,255,0),2)
-            # draw the center of the circle
-            cv.circle(cimg,(i[0],i[1]),2,(0,0,255),3)
+            print("reached distance calculation")
+            dst = None
+            for hsv in hsv_centers:
+               print
+               center = np.array([center_x, center_y])
+               hsv_c = np.array(hsv)
+               d = np.linalg.norm(center - hsv_c)
+               print(d)
+               if dst is None or d < dst:
+                  dst = d
+            if dst < i[2]:
+               cups.append([center_x, center_y])
+               # draw the outer circle
+               cv.circle(cimg,(i[0],i[1]),i[2],(0,255,0),2)
+               # draw the center of the circle
+               cv.circle(cimg,(i[0],i[1]),2,(0,0,255),3)
          print(str(len(cups)) + " circles detected")
-
 
       # # If there are no detected points, exit
       # if len(x_coords) == 0 or len(y_coords) == 0:
