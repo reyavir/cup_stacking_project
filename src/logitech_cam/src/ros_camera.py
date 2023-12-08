@@ -81,12 +81,14 @@ class ObjectDetector:
       y, x = np.nonzero(mask)
 
       cont, _ = cv.findCountours(mask, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
+      hsv_centers = []
       for c in cont:
          m = cv.moments(c)
          if m["m00"] != 0:
             c_x = int(m["m10"] / m["m00"])
             c_y = int(m["m01"] / m["m00"])
-            cv.circle(cimg, (c_x, c_y), 5, (255, 0, 0), -1)
+            hsv_centers.append([c_x, c_y])
+            # cv.circle(cimg, (c_x, c_y), 5, (255, 0, 0), -1)
 
       # Circle Detection
       img = cv.medianBlur(img,5)
@@ -105,7 +107,13 @@ class ObjectDetector:
             center_y = round(i[1])
             # note that this is in pixels
             # color filtering would go here
-            cups.append([center_x, center_y])
+            dst = None
+            for i in hsv_centers:
+               d = np.linalg.norm(np.array([center_x, center_y] - np.array(hsv_centers[i])))
+               if dst is None or d < dst:
+                  dst = d
+            if dst < i[2]:
+               cups.append([center_x, center_y])
             # draw the outer circle
             cv.circle(cimg,(i[0],i[1]),i[2],(0,255,0),2)
             # draw the center of the circle
